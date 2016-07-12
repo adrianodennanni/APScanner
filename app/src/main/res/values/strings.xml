@@ -3,4 +3,7 @@
     <string name="password">Password</string>
     <string name="placeholder_someone_net_map">someone@net.map</string>
     <string name="login">Login</string>
+    <string name="john_doe_email">john@net.map</string>
+
+    <string name="sign_in_url">https://net-map.herokuapp.com/users/sign_in</string>
 </resources>

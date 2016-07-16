@@ -11,6 +11,12 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login"
+            android:textColor="@android:color/primary_text_dark"
+            android:textSize="@dimen/abc_text_size_headline_material" />
     </android.support.v7.widget.Toolbar>
 
 

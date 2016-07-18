@@ -1,5 +1,8 @@
 package map.net.apscanner.activities;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -46,9 +49,21 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private class attemptLogin extends AsyncTask<String, Void, Integer> {
 
-        protected Integer doInBackground(String... params) {
+    /**
+     * This task attempts to perform login sending user email and password to the server,
+     * all made asynchronously.
+     * <p/>
+     * If server returns a 2xx (Successful) code, the server recognized the email/password and
+     * them sent back user's token to access other resources from server. Those informations are
+     * stored in Android's Shared Preferences.
+     * <p/>
+     * If the login is wrong OR server is offline OR anything else went wrong, the app will
+     * display an error message Toast.
+     */
+    private class attemptLogin extends AsyncTask<String, Void, Response> {
+
+        protected Response doInBackground(String... params) {
 
             String login = params[0];
             String password = params[1];
@@ -64,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 jsonBodyParams.put("email", login);
                 jsonBodyParams.put("password", password);
-                jsonBody.put("user", jsonBodyParams.toString());
+                jsonBody.put("user", jsonBodyParams);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -73,27 +88,53 @@ public class LoginActivity extends AppCompatActivity {
             RequestBody loginBody = RequestBody.create(JSON, jsonBody.toString());
             Request request = new Request.Builder()
                     .url(getResources().getString(R.string.sign_in_url))
+                    .header("Content-Type", "application/json")
                     .post(loginBody)
                     .build();
-            Response responses = null;
+            Response response = null;
 
             try {
-                responses = client.newCall(request).execute();
+                response = client.newCall(request).execute();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            assert responses != null;
-            return responses.code();
+            assert response != null;
+            return response;
         }
 
 
-        protected void onPostExecute(Integer code) {
-            if (code >= 200 && code < 300) {
-                //alright sir, call next activity
+        protected void onPostExecute(Response response) {
+            if (response.code() >= 200 && response.code() < 300) {
+                JSONObject responseBodyJson = null;
+                SharedPreferences sharedPref = getSharedPreferences("userInfo", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+
+                try {
+                    responseBodyJson = new JSONObject(response.body().string());
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    assert responseBodyJson != null;
+                    editor.putString("X-User-Email", responseBodyJson.getString("email"));
+                    editor.putString("X-User-Token", responseBodyJson.getString("authentication_token"));
+                    editor.putBoolean("logged_in?", true);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                editor.apply();
+
+                Intent facilitiesActivity = new Intent(LoginActivity.this, FacilitiesActivity.class);
+                startActivity(facilitiesActivity);
+                finish();
+
             } else {
 
-                Toast toast = Toast.makeText(LoginActivity.this, "Something went wrong", Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(LoginActivity.this,
+                        "Something went wrong, try again later", Toast.LENGTH_LONG);
                 toast.show();
             }
         }

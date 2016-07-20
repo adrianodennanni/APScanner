@@ -21,11 +21,10 @@ public class FacilitiesActivity extends AppCompatActivity {
      */
     private class getFacilitiesFromServer extends AsyncTask<Void, Void, Response> {
 
-        /**
-         * TODO Implement this
-         **/
         @Override
         protected Response doInBackground(Void... params) {
+            // String login =
+
             return null;
         }
     }

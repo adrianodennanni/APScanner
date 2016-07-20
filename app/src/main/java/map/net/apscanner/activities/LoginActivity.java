@@ -116,17 +116,20 @@ public class LoginActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
+
+                /* Tries to save user data to SharedPreferences */
                 try {
                     assert responseBodyJson != null;
                     editor.putString("X-User-Email", responseBodyJson.getString("email"));
                     editor.putString("X-User-Token", responseBodyJson.getString("authentication_token"));
                     editor.putBoolean("logged_in?", true);
+                    editor.apply();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                editor.apply();
 
+                /* Goes to next activity */
                 Intent facilitiesActivity = new Intent(LoginActivity.this, FacilitiesActivity.class);
                 startActivity(facilitiesActivity);
                 finish();

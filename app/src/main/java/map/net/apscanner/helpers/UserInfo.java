@@ -14,10 +14,6 @@ public class UserInfo {
         return ourInstance;
     }
 
-    public static void setUserToken(String userToken) {
-        mUserEmail = userToken;
-    }
-
     public static String getUserEmail() {
         return mUserEmail;
     }
@@ -26,8 +22,12 @@ public class UserInfo {
         mUserEmail = userEmail;
     }
 
-    public static String setUserToken() {
-        return mUserEmail;
+    public static String getUserToken() {
+        return mUserToken;
+    }
+
+    public static void setUserToken(String userToken) {
+        mUserToken = userToken;
     }
 
 }

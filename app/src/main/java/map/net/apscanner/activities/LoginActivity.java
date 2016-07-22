@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import map.net.apscanner.R;
+import map.net.apscanner.helpers.UserInfo;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -103,7 +104,6 @@ public class LoginActivity extends AppCompatActivity {
             return response;
         }
 
-
         protected void onPostExecute(Response response) {
             if (response.code() >= 200 && response.code() < 300) {
                 JSONObject responseBodyJson = null;
@@ -116,18 +116,21 @@ public class LoginActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-
                 /* Tries to save user data to SharedPreferences */
                 try {
                     assert responseBodyJson != null;
                     editor.putString("X-User-Email", responseBodyJson.getString("email"));
+                    UserInfo.setUserEmail(responseBodyJson.getString("email"));
+
                     editor.putString("X-User-Token", responseBodyJson.getString("authentication_token"));
+                    UserInfo.setUserToken(responseBodyJson.getString("authentication_token"));
+
                     editor.putBoolean("logged_in?", true);
+
                     editor.apply();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
 
                 /* Goes to next activity */
                 Intent facilitiesActivity = new Intent(LoginActivity.this, FacilitiesActivity.class);
@@ -143,6 +146,4 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
 }
-

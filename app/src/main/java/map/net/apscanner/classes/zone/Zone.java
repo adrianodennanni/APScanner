@@ -1,14 +1,12 @@
-package map.net.apscanner.classes.facility;
+package map.net.apscanner.classes.zone;
 
-public class Facility {
-
+public class Zone {
     private String name;
     private transient String date;
     private transient String id;
 
-    public Facility(String name, String id) {
+    public Zone(String name) {
         this.name = name;
-        this.id = id;
     }
 
     public String getName() {

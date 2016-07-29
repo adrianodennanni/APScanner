@@ -5,7 +5,8 @@
     <string name="login">Login</string>
     <string name="john_doe_email">john@net.map</string>
 
-    <string name="sign_in_url">http://52.67.105.105:3000/users/sign_in</string>
-    <string name="get_facilities_url">http://52.67.105.105:3000/facilities</string>
+
     <string name="facilities">Facilities</string>
+    <string name="zones">Zones</string>
+    <string name="facility_name">Facility name</string>
 </resources>

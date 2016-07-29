@@ -23,40 +23,59 @@ import java.util.List;
 
 import map.net.apscanner.R;
 import map.net.apscanner.classes.facility.Facility;
-import map.net.apscanner.classes.facility.FacilityAdapter;
+import map.net.apscanner.classes.zone.Zone;
+import map.net.apscanner.classes.zone.ZoneAdapter;
 import map.net.apscanner.helpers.UserInfo;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class FacilitiesActivity extends AppCompatActivity {
+public class ZonesActivity extends AppCompatActivity {
 
-    ListView facilitiesListView;
+    ListView zonesListView;
+
+    Bundle extras;
+    String facilityName;
+    String facilityId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_facilities);
+        setContentView(R.layout.activity_zones);
 
-        facilitiesListView = (ListView) findViewById(R.id.facilitiesListView);
+        // Get data passed from Facility Activity
+        extras = getIntent().getExtras();
+        if (extras != null) {
+            facilityName = extras.getString("FACILITY_NAME");
+            facilityId = extras.getString("FACILITY_ID");
+        }
 
+        zonesListView = (ListView) findViewById(R.id.zonesListView);
 
-        new getFacilitiesFromServer().execute();
+        new getZonesFromServer().execute();
     }
 
+
     /**
-     * This async task gets a list of User's facilities data from server and put them into a
-     * ListView. The user can touch on the facility to access its zones.
+     * This async task gets a list of Facilities's zones data from server and put them into a
+     * ListView. The user can touch on the zone to access its measures.
      */
-    private class getFacilitiesFromServer extends AsyncTask<Void, Void, Response> {
+    private class getZonesFromServer extends AsyncTask<Void, Void, Response> {
 
         @Override
         protected Response doInBackground(Void... params) {
 
             OkHttpClient client = new OkHttpClient();
 
+            /* Build URL with parameters*/
+            HttpUrl url = HttpUrl.parse(getResources().getString(R.string.get_zones_url)).newBuilder()
+                    .addQueryParameter("facility_id", facilityId)
+                    .build();
+
+            /* Build request */
             Request request = new Request.Builder()
-                    .url(getResources().getString(R.string.get_facilities_url))
+                    .url(url)
                     .header("Content-Type", "application/json")
                     .header("X-User-Email", UserInfo.getUserEmail())
                     .header("X-User-Token", UserInfo.getUserToken())
@@ -75,50 +94,49 @@ public class FacilitiesActivity extends AppCompatActivity {
 
         protected void onPostExecute(Response response) {
             if (response == null) {
-                Toast toast = Toast.makeText(FacilitiesActivity.this,
+                Toast toast = Toast.makeText(ZonesActivity.this,
                         "Something went wrong, try refreshing", Toast.LENGTH_LONG);
                 toast.show();
             } else if (response.code() >= 200 && response.code() < 300) {
 
-                JSONArray facilitiesJSON = null;
+                JSONArray zonesJSON = null;
                 try {
-                    facilitiesJSON = new JSONArray(response.body().string());
+                    zonesJSON = new JSONArray(response.body().string());
                 } catch (JSONException | IOException e) {
                     e.printStackTrace();
                 }
 
-                List<Facility> facilitiesList = new ArrayList<>();
+                List<Zone> zonesList = new ArrayList<>();
 
-                assert facilitiesJSON != null;
-                for (int i = 0; i < facilitiesJSON.length(); i++) {
+                assert zonesJSON != null;
+                for (int i = 0; i < zonesJSON.length(); i++) {
                     try {
-                        JSONObject facilityJSON = facilitiesJSON.getJSONObject(i);
-                        Facility facility = new Facility(facilityJSON.get("name").toString(),
-                                facilityJSON.getJSONObject("_id").get("$oid").toString());
+                        JSONObject zoneJSON = zonesJSON.getJSONObject(i);
+                        Zone zone = new Zone(zoneJSON.get("name").toString());
 
                         /* Sets up a ISO format and convert servers format to it */
                         DateFormat dateFormatISO = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                        String facilityCreatedAtDate = facilityJSON.get("created_at").toString();
-                        Date completeDate = dateFormatISO.parse(facilityCreatedAtDate);
+                        String zoneCreatedAtDate = zoneJSON.get("created_at").toString();
+                        Date completeDate = dateFormatISO.parse(zoneCreatedAtDate);
 
                         /* Setting up days only date*/
                         DateFormat daysOnlyDataFormat = new SimpleDateFormat("dd/MMM/yy");
                         String daysOnlyDate = daysOnlyDataFormat.format(completeDate);
-                        facility.setDate(daysOnlyDate);
+                        zone.setDate(daysOnlyDate);
 
-                        facilitiesList.add(facility);
+                        zonesList.add(zone);
                     } catch (JSONException | ParseException e) {
                         e.printStackTrace();
                     }
                 }
 
-                FacilityAdapter adapter = new FacilityAdapter(FacilitiesActivity.this, facilitiesList);
-                facilitiesListView.setAdapter(adapter);
-                facilitiesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                ZoneAdapter adapter = new ZoneAdapter(ZonesActivity.this, zonesList);
+                zonesListView.setAdapter(adapter);
+                zonesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Facility facilityAtPosition = (Facility) facilitiesListView.getItemAtPosition(position);
-                        Intent zonesIntent = new Intent(FacilitiesActivity.this, ZonesActivity.class);
+                        Facility facilityAtPosition = (Facility) zonesListView.getItemAtPosition(position);
+                        Intent zonesIntent = new Intent(ZonesActivity.this, ZonesActivity.class);
                         zonesIntent.putExtra("FACILITY_ID", facilityAtPosition.getId());
                         zonesIntent.putExtra("FACILITY_NAME", facilityAtPosition.getName());
                         startActivity(zonesIntent);
@@ -127,7 +145,7 @@ public class FacilitiesActivity extends AppCompatActivity {
 
             } else {
 
-                Toast toast = Toast.makeText(FacilitiesActivity.this,
+                Toast toast = Toast.makeText(ZonesActivity.this,
                         "Something went wrong, try refreshing", Toast.LENGTH_LONG);
                 toast.show();
             }
@@ -136,4 +154,3 @@ public class FacilitiesActivity extends AppCompatActivity {
 
     }
 }
-

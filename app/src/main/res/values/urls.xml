@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sign_in_url">http://52.67.105.105:3000/users/sign_in</string>
+    <string name="get_facilities_url">http://52.67.105.105:3000/facilities</string>
+    <string name="get_zones_url">http://52.67.105.105:3000/zones</string>
+</resources>

@@ -3,11 +3,18 @@ package map.net.apscanner.activities;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,13 +32,16 @@ import map.net.apscanner.R;
 import map.net.apscanner.classes.facility.Facility;
 import map.net.apscanner.classes.facility.FacilityAdapter;
 import map.net.apscanner.helpers.UserInfo;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class FacilitiesActivity extends AppCompatActivity {
 
     ListView facilitiesListView;
+    FloatingActionButton newFacilityFAB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +49,40 @@ public class FacilitiesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_facilities);
 
         facilitiesListView = (ListView) findViewById(R.id.facilitiesListView);
+        newFacilityFAB = (FloatingActionButton) findViewById(R.id.fabNewFacility);
+
+
+        /* On button's click, calls AsyncTask to send new Facility to server */
+
+        newFacilityFAB.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                MaterialDialog.Builder newFacilityDialog =
+                        new MaterialDialog.Builder(FacilitiesActivity.this)
+                                .title("Create a new facility")
+                                .positiveText("Ok")
+                                .inputType(InputType.TYPE_CLASS_TEXT)
+                                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                    @Override
+                                    public void onClick(@NonNull MaterialDialog dialog,
+                                                        @NonNull DialogAction which) {
+                                        String inputText =
+                                                dialog.getInputEditText().getText().toString();
+                                        new sendFacilitiesToServer().execute(inputText);
+                                    }
+                                });
+
+                newFacilityDialog.input("Enter your facility name", null,
+                        new MaterialDialog.InputCallback() {
+                            @Override
+                            public void onInput(MaterialDialog dialog, CharSequence input) {
+
+                            }
+                        });
+
+                newFacilityDialog.show();
+            }
+        });
 
 
         new getFacilitiesFromServer().execute();
@@ -92,9 +136,11 @@ public class FacilitiesActivity extends AppCompatActivity {
                 assert facilitiesJSON != null;
                 for (int i = 0; i < facilitiesJSON.length(); i++) {
                     try {
+
+                        /* Creates a new Facility object from JSON */
                         JSONObject facilityJSON = facilitiesJSON.getJSONObject(i);
-                        Facility facility = new Facility(facilityJSON.get("name").toString(),
-                                facilityJSON.getJSONObject("_id").get("$oid").toString());
+                        Facility facility = new Facility(facilityJSON.get("name").toString());
+                        facility.setId(facilityJSON.getJSONObject("_id").get("$oid").toString());
 
                         /* Sets up a ISO format and convert servers format to it */
                         DateFormat dateFormatISO = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -133,6 +179,59 @@ public class FacilitiesActivity extends AppCompatActivity {
             }
         }
 
+
+    }
+
+    private class sendFacilitiesToServer extends AsyncTask<String, Void, Response> {
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Response doInBackground(String... facilityName) {
+
+            Gson gson = new Gson();
+            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+            String facilityJSON = gson.toJson(new Facility(facilityName[0]));
+            RequestBody loginBody = RequestBody.create(JSON, facilityJSON.toString());
+
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(getResources().getString(R.string.new_facility_url))
+                    .header("Content-Type", "application/json")
+                    .header("X-User-Email", UserInfo.getUserEmail())
+                    .header("X-User-Token", UserInfo.getUserToken())
+                    .post(loginBody)
+                    .build();
+            Response response = null;
+
+            try {
+                response = client.newCall(request).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return response;
+        }
+
+        protected void onPostExecute(Response response) {
+            if (response == null) {
+                Toast toast = Toast.makeText(FacilitiesActivity.this,
+                        "Something went wrong, try refreshing", Toast.LENGTH_LONG);
+                toast.show();
+            } else if (response.code() >= 200 && response.code() < 300) {
+                new getFacilitiesFromServer().execute();
+            } else {
+
+                Toast toast = Toast.makeText(FacilitiesActivity.this,
+                        "Something went wrong, try refreshing", Toast.LENGTH_LONG);
+                toast.show();
+            }
+        }
 
     }
 }

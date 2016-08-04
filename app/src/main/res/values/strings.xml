@@ -9,4 +9,6 @@
     <string name="facilities">Facilities</string>
     <string name="zones">Zones</string>
     <string name="facility_name">Facility name</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
 </resources>

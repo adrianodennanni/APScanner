@@ -6,9 +6,8 @@ public class Facility {
     private transient String date;
     private transient String id;
 
-    public Facility(String name, String id) {
+    public Facility(String name) {
         this.name = name;
-        this.id = id;
     }
 
     public String getName() {

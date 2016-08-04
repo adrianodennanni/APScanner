@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 
 import map.net.apscanner.R;
-import map.net.apscanner.classes.facility.Facility;
 import map.net.apscanner.classes.zone.Zone;
 import map.net.apscanner.classes.zone.ZoneAdapter;
 import map.net.apscanner.helpers.UserInfo;
@@ -135,11 +134,11 @@ public class ZonesActivity extends AppCompatActivity {
                 zonesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Facility facilityAtPosition = (Facility) zonesListView.getItemAtPosition(position);
-                        Intent zonesIntent = new Intent(ZonesActivity.this, ZonesActivity.class);
-                        zonesIntent.putExtra("FACILITY_ID", facilityAtPosition.getId());
-                        zonesIntent.putExtra("FACILITY_NAME", facilityAtPosition.getName());
-                        startActivity(zonesIntent);
+                        Zone zoneAtPosition = (Zone) zonesListView.getItemAtPosition(position);
+                        Intent measuresIntent = new Intent(ZonesActivity.this, MeasuresActivity.class);
+                        measuresIntent.putExtra("ZONE_ID", zoneAtPosition.getId());
+                        measuresIntent.putExtra("ZONE_NAME", zoneAtPosition.getName());
+                        startActivity(measuresIntent);
                     }
                 });
 

@@ -61,6 +61,7 @@ public class FacilitiesActivity extends AppCompatActivity {
                         new MaterialDialog.Builder(FacilitiesActivity.this)
                                 .title("Create a new facility")
                                 .positiveText("Ok")
+                                .negativeText("Cancel")
                                 .inputType(InputType.TYPE_CLASS_TEXT)
                                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                                     @Override
@@ -70,7 +71,15 @@ public class FacilitiesActivity extends AppCompatActivity {
                                                 dialog.getInputEditText().getText().toString();
                                         new sendFacilitiesToServer().execute(inputText);
                                     }
+                                })
+                                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                    @Override
+                                    public void onClick(@NonNull MaterialDialog dialog,
+                                                        @NonNull DialogAction which) {
+                                        dialog.dismiss();
+                                    }
                                 });
+
 
                 newFacilityDialog.input("Enter your facility name", null,
                         new MaterialDialog.InputCallback() {

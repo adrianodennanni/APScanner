@@ -228,18 +228,39 @@ public class FacilitiesActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Response response) {
+
+            /* Default error message to be shown */
+            String defaultErrorMessage = "Something went wrong, try refreshing";
+
+            /* If, for some reason, the response is null (should not be) */
             if (response == null) {
                 Toast toast = Toast.makeText(FacilitiesActivity.this,
-                        "Something went wrong, try refreshing", Toast.LENGTH_LONG);
-                toast.show();
-            } else if (response.code() >= 200 && response.code() < 300) {
-                new getFacilitiesFromServer().execute();
-            } else {
-
-                Toast toast = Toast.makeText(FacilitiesActivity.this,
-                        "Something went wrong, try refreshing", Toast.LENGTH_LONG);
+                        defaultErrorMessage, Toast.LENGTH_LONG);
                 toast.show();
             }
+
+            /* In this case, server created the facility */
+            else if (response.code() >= 200 && response.code() < 300) {
+                new getFacilitiesFromServer().execute();
+            }
+
+            /* Response not null, but server rejected */
+            else {
+
+                /* Show in toast the error from server */
+                try {
+                    defaultErrorMessage = response.body().string();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Toast toast = Toast.makeText(FacilitiesActivity.this,
+                        defaultErrorMessage, Toast.LENGTH_LONG);
+                toast.show();
+            }
+
+            assert response != null;
+            response.close();
         }
 
     }

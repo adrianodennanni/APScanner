@@ -43,6 +43,7 @@ public class FacilitiesActivity extends AppCompatActivity {
     ListView facilitiesListView;
     FloatingActionButton newFacilityFAB;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +70,7 @@ public class FacilitiesActivity extends AppCompatActivity {
                                                         @NonNull DialogAction which) {
                                         String inputText =
                                                 dialog.getInputEditText().getText().toString();
-                                        new sendFacilitiesToServer().execute(inputText);
+                                        new sendFacilityToServer().execute(inputText);
                                     }
                                 })
                                 .onNegative(new MaterialDialog.SingleButtonCallback() {
@@ -191,7 +192,7 @@ public class FacilitiesActivity extends AppCompatActivity {
 
     }
 
-    private class sendFacilitiesToServer extends AsyncTask<String, Void, Response> {
+    private class sendFacilityToServer extends AsyncTask<String, Void, Response> {
 
         @Override
         protected void onPreExecute() {
@@ -205,7 +206,7 @@ public class FacilitiesActivity extends AppCompatActivity {
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
             String facilityJSON = gson.toJson(new Facility(facilityName[0]));
-            RequestBody loginBody = RequestBody.create(JSON, facilityJSON.toString());
+            RequestBody facilityBody = RequestBody.create(JSON, facilityJSON);
 
             OkHttpClient client = new OkHttpClient();
 
@@ -214,7 +215,7 @@ public class FacilitiesActivity extends AppCompatActivity {
                     .header("Content-Type", "application/json")
                     .header("X-User-Email", UserInfo.getUserEmail())
                     .header("X-User-Token", UserInfo.getUserToken())
-                    .post(loginBody)
+                    .post(facilityBody)
                     .build();
             Response response = null;
 

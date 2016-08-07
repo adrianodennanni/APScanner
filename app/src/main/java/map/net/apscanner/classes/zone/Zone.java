@@ -1,7 +1,9 @@
 package map.net.apscanner.classes.zone;
 
 public class Zone {
+
     private String name;
+    private String facility_id;
     private transient String date;
     private transient String id;
 
@@ -31,5 +33,13 @@ public class Zone {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getFacility_id() {
+        return facility_id;
+    }
+
+    public void setFacility_id(String facility_id) {
+        this.facility_id = facility_id;
     }
 }

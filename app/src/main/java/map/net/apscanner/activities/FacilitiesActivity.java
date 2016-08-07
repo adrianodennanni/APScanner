@@ -132,7 +132,7 @@ public class FacilitiesActivity extends AppCompatActivity {
                 Toast toast = Toast.makeText(FacilitiesActivity.this,
                         "Something went wrong, try refreshing", Toast.LENGTH_LONG);
                 toast.show();
-            } else if (response.code() >= 200 && response.code() < 300) {
+            } else if (response.isSuccessful()) {
 
                 JSONArray facilitiesJSON = null;
                 try {
@@ -188,8 +188,6 @@ public class FacilitiesActivity extends AppCompatActivity {
                 toast.show();
             }
         }
-
-
     }
 
     private class sendFacilityToServer extends AsyncTask<String, Void, Response> {
@@ -241,7 +239,7 @@ public class FacilitiesActivity extends AppCompatActivity {
             }
 
             /* In this case, server created the facility */
-            else if (response.code() >= 200 && response.code() < 300) {
+            else if (response.isSuccessful()) {
                 new getFacilitiesFromServer().execute();
             }
 

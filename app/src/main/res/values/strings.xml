@@ -12,4 +12,5 @@
     <string name="cancel">Cancel</string>
     <string name="acquisitions">Acquisitions</string>
     <string name="acquisition_name">Acquisition name</string>
+    <string name="zone_name">Zone Name</string>
 </resources>

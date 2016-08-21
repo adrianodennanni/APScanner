@@ -17,7 +17,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import map.net.apscanner.R;
-import map.net.apscanner.helpers.UserInfo;
+import map.net.apscanner.utils.UserInfo;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

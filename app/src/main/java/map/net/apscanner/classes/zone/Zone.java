@@ -1,11 +1,15 @@
 package map.net.apscanner.classes.zone;
 
-public class Zone {
+import com.google.gson.annotations.Expose;
+
+import java.io.Serializable;
+
+public class Zone implements Serializable {
 
     private String name;
     private String facility_id;
-    private transient String date;
-    private transient String id;
+    @Expose private String date;
+    @Expose private String id;
 
     public Zone(String name) {
         this.name = name;

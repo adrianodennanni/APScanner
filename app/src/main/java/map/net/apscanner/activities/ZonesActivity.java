@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,9 +29,11 @@ import java.util.Date;
 import java.util.List;
 
 import map.net.apscanner.R;
+import map.net.apscanner.classes.facility.Facility;
 import map.net.apscanner.classes.zone.Zone;
 import map.net.apscanner.classes.zone.ZoneAdapter;
-import map.net.apscanner.helpers.UserInfo;
+import map.net.apscanner.utils.GsonUtil;
+import map.net.apscanner.utils.UserInfo;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -47,8 +48,7 @@ public class ZonesActivity extends AppCompatActivity {
     FloatingActionButton newZoneFAB;
 
     Bundle extras;
-    String facilityName;
-    String facilityId;
+    Facility facility;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,15 +58,14 @@ public class ZonesActivity extends AppCompatActivity {
         // Get data passed from Facility Activity
         extras = getIntent().getExtras();
         if (extras != null) {
-            facilityName = extras.getString("FACILITY_NAME");
-            facilityId = extras.getString("FACILITY_ID");
+            facility = (Facility) extras.get("FACILITY");
         }
 
         zonesListView = (ListView) findViewById(R.id.zonesListView);
         subtitleTextView = (TextView) findViewById(R.id.subtitleZone);
         newZoneFAB = (FloatingActionButton) findViewById(R.id.fabNewZone);
 
-        subtitleTextView.setText(facilityName);
+        subtitleTextView.setText(facility.getName());
 
         /* On button's click, calls AsyncTask to send new Facility to server */
 
@@ -83,6 +82,7 @@ public class ZonesActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(@NonNull MaterialDialog dialog,
                                                         @NonNull DialogAction which) {
+                                        assert dialog.getInputEditText() != null;
                                         String inputText =
                                                 dialog.getInputEditText().getText().toString();
                                         new sendZoneToServer().execute(inputText);
@@ -126,7 +126,7 @@ public class ZonesActivity extends AppCompatActivity {
 
             /* Build URL with parameters*/
             HttpUrl url = HttpUrl.parse(getResources().getString(R.string.get_zones_url)).newBuilder()
-                    .addQueryParameter("facility_id", facilityId)
+                    .addQueryParameter("facility_id", facility.getId())
                     .build();
 
             /* Build request */
@@ -194,9 +194,8 @@ public class ZonesActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Zone zoneAtPosition = (Zone) zonesListView.getItemAtPosition(position);
-                        Intent measuresIntent = new Intent(ZonesActivity.this, MeasuresActivity.class);
-                        measuresIntent.putExtra("ZONE_ID", zoneAtPosition.getId());
-                        measuresIntent.putExtra("ZONE_NAME", zoneAtPosition.getName());
+                        Intent measuresIntent = new Intent(ZonesActivity.this, AcquisitionsActivity.class);
+                        measuresIntent.putExtra("ZONE", zoneAtPosition);
                         startActivity(measuresIntent);
                     }
                 });
@@ -224,14 +223,13 @@ public class ZonesActivity extends AppCompatActivity {
 
         @Override
         protected Response doInBackground(String... zoneName) {
-
-            Gson gson = new Gson();
+            ;
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
             Zone zone = new Zone(zoneName[0]);
-            zone.setFacility_id(facilityId);
+            zone.setFacility_id(facility.getId());
 
-            String zoneJSON = gson.toJson(zone);
+            String zoneJSON = GsonUtil.getGson().toJson(zone);
             RequestBody zoneBody = RequestBody.create(JSON, zoneJSON);
 
             OkHttpClient client = new OkHttpClient();

@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,7 +30,8 @@ import java.util.List;
 import map.net.apscanner.R;
 import map.net.apscanner.classes.facility.Facility;
 import map.net.apscanner.classes.facility.FacilityAdapter;
-import map.net.apscanner.helpers.UserInfo;
+import map.net.apscanner.utils.GsonUtil;
+import map.net.apscanner.utils.UserInfo;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -68,6 +68,8 @@ public class FacilitiesActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(@NonNull MaterialDialog dialog,
                                                         @NonNull DialogAction which) {
+
+                                        assert dialog.getInputEditText() != null;
                                         String inputText =
                                                 dialog.getInputEditText().getText().toString();
                                         new sendFacilityToServer().execute(inputText);
@@ -175,8 +177,7 @@ public class FacilitiesActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Facility facilityAtPosition = (Facility) facilitiesListView.getItemAtPosition(position);
                         Intent zonesIntent = new Intent(FacilitiesActivity.this, ZonesActivity.class);
-                        zonesIntent.putExtra("FACILITY_ID", facilityAtPosition.getId());
-                        zonesIntent.putExtra("FACILITY_NAME", facilityAtPosition.getName());
+                        zonesIntent.putExtra("FACILITY", facilityAtPosition);
                         startActivity(zonesIntent);
                     }
                 });
@@ -200,10 +201,9 @@ public class FacilitiesActivity extends AppCompatActivity {
         @Override
         protected Response doInBackground(String... facilityName) {
 
-            Gson gson = new Gson();
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-            String facilityJSON = gson.toJson(new Facility(facilityName[0]));
+            String facilityJSON = GsonUtil.getGson().toJson(new Facility(facilityName[0]));
             RequestBody facilityBody = RequestBody.create(JSON, facilityJSON);
 
             OkHttpClient client = new OkHttpClient();

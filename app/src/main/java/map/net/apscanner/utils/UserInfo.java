@@ -1,4 +1,4 @@
-package map.net.apscanner.helpers;
+package map.net.apscanner.utils;
 
 public class UserInfo {
 

@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import map.net.apscanner.helpers.UserInfo;
+import map.net.apscanner.utils.UserInfo;
 
 /**
  * This is the Launcher Activity. If the user has previously logged in, it will warp to the User's

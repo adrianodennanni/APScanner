@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">APScanner</string>
     <string name="password">Password</string>
-    <string name="placeholder_someone_net_map">someone@net.map</string>
     <string name="login">Login</string>
     <string name="john_doe_email">john@net.map</string>
 
@@ -9,6 +8,8 @@
     <string name="facilities">Facilities</string>
     <string name="zones">Zones</string>
     <string name="facility_name">Facility name</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="acquisitions">Acquisitions</string>
+    <string name="acquisition_name">Acquisition name</string>
 </resources>

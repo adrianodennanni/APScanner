@@ -1,10 +1,14 @@
 package map.net.apscanner.classes.facility;
 
-public class Facility {
+import com.google.gson.annotations.Expose;
+
+import java.io.Serializable;
+
+public class Facility implements Serializable {
 
     private String name;
-    private transient String date;
-    private transient String id;
+    @Expose private String date;
+    @Expose private String id;
 
     public Facility(String name) {
         this.name = name;

@@ -13,4 +13,5 @@
     <string name="acquisitions">Acquisitions</string>
     <string name="acquisition_name">Acquisition name</string>
     <string name="zone_name">Zone Name</string>
+    <string name="Placeholder">Placeholder</string>
 </resources>

@@ -14,4 +14,9 @@
     <string name="acquisition_name">Acquisition name</string>
     <string name="zone_name">Zone Name</string>
     <string name="Placeholder">Placeholder</string>
+    <string name="date_placeholder">dd/mmm/yyyy hh:mm</string>
+    <string name="normalization_method">Normalization Method:</string>
+    <string name="acquisition_interval">Acquisitions Interval:</string>
+    <string name="samples_per_acquisition">Samples per Acquisition:</string>
+    <string name="total_acquisitions">Total of Acquisitions:</string>
 </resources>

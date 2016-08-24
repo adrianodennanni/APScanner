@@ -4,6 +4,11 @@
     <string name="login">Login</string>
     <string name="john_doe_email">john@net.map</string>
 
+    <string-array name="normalization_methods">
+        <item>Kalman Filter</item>
+        <item>Arithmetic Mean</item>
+    </string-array>
+
 
     <string name="facilities">Facilities</string>
     <string name="zones">Zones</string>
@@ -19,4 +24,8 @@
     <string name="acquisition_interval">Acquisitions Interval:</string>
     <string name="samples_per_acquisition">Samples per Acquisition:</string>
     <string name="total_acquisitions">Total of Acquisitions:</string>
+    <string name="erase_current_acquisition_set">Erase current acquisition set</string>
+    <string name="normalization_algorithm">Normalization Algorithm:</string>
+    <string name="number_of_scans_per_acquisition">Number of scans per acquisition:</string>
+    <string name="interval_between_scans">Interval between scans:</string>
 </resources>

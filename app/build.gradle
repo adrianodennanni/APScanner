@@ -29,4 +29,5 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:24.2.0'
     compile files('libs/okhttp-3.4.1.jar')
     compile files('libs/gson-2.7.jar')
+    compile files('libs/kalman-filter-2.0.0.jar')
 }

@@ -72,7 +72,7 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -80,8 +80,15 @@
             android:weightSum="2">
 
             <LinearLayout
+                android:id="@+id/linearLayout2"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="0dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -102,8 +109,12 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/linearLayout3"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/linearLayout2"
                 android:orientation="horizontal">
 
                 <TextView
@@ -126,8 +137,12 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/linearLayout4"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/linearLayout3"
                 android:orientation="horizontal">
 
                 <TextView
@@ -148,7 +163,23 @@
 
 
             </LinearLayout>
-        </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/linearLayout4"
+                android:gravity="center_vertical|center_horizontal">
+
+                <android.support.design.widget.FloatingActionButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_play_arrow_white_48dp" />
+            </LinearLayout>
+        </RelativeLayout>
 
     </LinearLayout>
 

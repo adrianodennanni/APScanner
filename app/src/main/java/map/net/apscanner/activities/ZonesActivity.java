@@ -1,5 +1,6 @@
 package map.net.apscanner.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ public class ZonesActivity extends AppCompatActivity {
     ListView zonesListView;
     TextView subtitleTextView;
     FloatingActionButton newZoneFAB;
+    ProgressDialog loadingDialog;
 
     Bundle extras;
     Facility facility;
@@ -120,6 +122,13 @@ public class ZonesActivity extends AppCompatActivity {
     private class getZonesFromServer extends AsyncTask<Void, Void, Response> {
 
         @Override
+        protected void onPreExecute() {
+            loadingDialog = ProgressDialog.show(ZonesActivity.this,
+                    "Please wait...", "Getting data from server");
+            loadingDialog.setCancelable(false);
+        }
+
+        @Override
         protected Response doInBackground(Void... params) {
 
             OkHttpClient client = new OkHttpClient();
@@ -149,6 +158,8 @@ public class ZonesActivity extends AppCompatActivity {
 
 
         protected void onPostExecute(Response response) {
+
+            loadingDialog.dismiss();
 
             if (response == null) {
                 Toast toast = Toast.makeText(ZonesActivity.this,
@@ -218,12 +229,13 @@ public class ZonesActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-
+            loadingDialog = ProgressDialog.show(ZonesActivity.this,
+                    "Please wait...", "Getting data from server");
+            loadingDialog.setCancelable(false);
         }
 
         @Override
         protected Response doInBackground(String... zoneName) {
-            ;
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
             Zone zone = new Zone(zoneName[0]);
@@ -253,6 +265,8 @@ public class ZonesActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Response response) {
+
+            loadingDialog.dismiss();
 
             /* Default error message to be shown */
             String defaultErrorMessage = "Something went wrong, try refreshing";

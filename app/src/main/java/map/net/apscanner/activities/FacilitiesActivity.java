@@ -1,5 +1,6 @@
 package map.net.apscanner.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ public class FacilitiesActivity extends AppCompatActivity {
 
     ListView facilitiesListView;
     FloatingActionButton newFacilityFAB;
+    ProgressDialog loadingDialog;
 
 
     @Override
@@ -107,6 +109,13 @@ public class FacilitiesActivity extends AppCompatActivity {
     private class getFacilitiesFromServer extends AsyncTask<Void, Void, Response> {
 
         @Override
+        protected void onPreExecute() {
+            loadingDialog = ProgressDialog.show(FacilitiesActivity.this,
+                    "Please wait...", "Getting data from server");
+            loadingDialog.setCancelable(false);
+        }
+
+        @Override
         protected Response doInBackground(Void... params) {
 
             OkHttpClient client = new OkHttpClient();
@@ -130,6 +139,9 @@ public class FacilitiesActivity extends AppCompatActivity {
 
 
         protected void onPostExecute(Response response) {
+
+            loadingDialog.dismiss();
+
             if (response == null) {
                 Toast toast = Toast.makeText(FacilitiesActivity.this,
                         "Something went wrong, try refreshing", Toast.LENGTH_LONG);
@@ -195,7 +207,9 @@ public class FacilitiesActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-
+            loadingDialog = ProgressDialog.show(FacilitiesActivity.this,
+                    "Please wait...", "Getting data from server");
+            loadingDialog.setCancelable(false);
         }
 
         @Override
@@ -230,6 +244,9 @@ public class FacilitiesActivity extends AppCompatActivity {
 
             /* Default error message to be shown */
             String defaultErrorMessage = "Something went wrong, try refreshing";
+
+            /* Dismiss dialog*/
+            loadingDialog.dismiss();
 
             /* If, for some reason, the response is null (should not be) */
             if (response == null) {

@@ -1,5 +1,6 @@
 package map.net.apscanner.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,6 +26,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
+
+    ProgressDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +66,13 @@ public class LoginActivity extends AppCompatActivity {
      * display an error message Toast.
      */
     private class attemptLogin extends AsyncTask<String, Void, Response> {
+
+        @Override
+        protected void onPreExecute() {
+            loadingDialog = ProgressDialog.show(LoginActivity.this,
+                    "Please wait...", "Getting data from server");
+            loadingDialog.setCancelable(false);
+        }
 
         protected Response doInBackground(String... params) {
 
@@ -105,7 +115,10 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Response response) {
-            if (response.code() >= 200 && response.code() < 300) {
+
+            loadingDialog.dismiss();
+
+            if (response.isSuccessful()) {
                 JSONObject responseBodyJson = null;
                 SharedPreferences sharedPref = getSharedPreferences("userInfo", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();

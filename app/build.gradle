@@ -27,7 +27,7 @@ dependencies {
     compile 'com.afollestad.material-dialogs:core:0.8.6.2'
     compile 'com.android.support:cardview-v7:24.2.0'
     compile 'com.android.support:recyclerview-v7:24.2.0'
-    compile files('libs/okhttp-3.4.1.jar')
-    compile files('libs/gson-2.7.jar')
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile 'com.google.code.gson:gson:2.7'
     compile files('libs/kalman-filter-2.0.0.jar')
 }

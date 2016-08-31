@@ -29,5 +29,6 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:24.2.0'
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.google.code.gson:gson:2.7'
+    compile 'biz.kasual:materialnumberpicker:1.2.1'
     compile files('libs/kalman-filter-2.0.0.jar')
 }

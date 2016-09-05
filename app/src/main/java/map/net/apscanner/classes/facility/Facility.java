@@ -7,9 +7,13 @@ import java.io.Serializable;
 public class Facility implements Serializable {
 
     private String name;
+
+    //Exposed variables are not serialized by Gson
     @Expose
-    private String date; //Exposed variables are not serialized by Gson
-    @Expose private String id;
+    private String date;
+
+    @Expose
+    private String id;
 
     public Facility(String name) {
         this.name = name;

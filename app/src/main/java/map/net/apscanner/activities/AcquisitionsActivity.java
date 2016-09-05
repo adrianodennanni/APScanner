@@ -11,8 +11,10 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
     @BindView(R.id.fabStartMeasure)
     FloatingActionButton startAcquisitionButton;
+
     @BindView(R.id.imageButtonEraseCurrentSet)
     FloatingActionButton eraseCurrentSetButton;
+
     @BindView(R.id.imageButtonSendSet)
     FloatingActionButton sendCurrentSets;
 

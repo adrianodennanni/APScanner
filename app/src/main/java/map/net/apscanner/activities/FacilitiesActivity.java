@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import butterknife.BindView;
 import map.net.apscanner.R;
 import map.net.apscanner.classes.facility.Facility;
 import map.net.apscanner.classes.facility.FacilityAdapter;
@@ -42,9 +41,7 @@ import okhttp3.Response;
 
 public class FacilitiesActivity extends AppCompatActivity {
 
-    @BindView(R.id.facilitiesListView)
     ListView facilitiesListView;
-    @BindView(R.id.fabNewFacility)
     FloatingActionButton newFacilityFAB;
     ProgressDialog loadingDialog;
 
@@ -53,6 +50,9 @@ public class FacilitiesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_facilities);
+
+        newFacilityFAB = (FloatingActionButton) findViewById(R.id.fabNewFacility);
+        facilitiesListView = (ListView) findViewById(R.id.facilitiesListView);
 
         /* On button's click, calls AsyncTask to send new Facility to server */
         newFacilityFAB.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +87,7 @@ public class FacilitiesActivity extends AppCompatActivity {
                 newFacilityDialog.input("Enter your facility name", null,
                         new MaterialDialog.InputCallback() {
                             @Override
-                            public void onInput(MaterialDialog dialog, CharSequence input) {
+                            public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
 
                             }
                         });

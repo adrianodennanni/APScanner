@@ -102,7 +102,7 @@ public class ZonesActivity extends AppCompatActivity {
                 newZoneDialog.input("Enter your zone name", null,
                         new MaterialDialog.InputCallback() {
                             @Override
-                            public void onInput(MaterialDialog dialog, CharSequence input) {
+                            public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
 
                             }
                         });
@@ -220,7 +220,6 @@ public class ZonesActivity extends AppCompatActivity {
 
             response.close();
         }
-
 
     }
 

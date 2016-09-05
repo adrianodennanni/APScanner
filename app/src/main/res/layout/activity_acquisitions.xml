@@ -108,7 +108,7 @@
                     android:spinnerMode="dropdown" />
             </LinearLayout>
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/linearLayout3"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -125,18 +125,20 @@
                     android:text="@string/number_of_scans_per_acquisition"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
-                <NumberPicker
-                    android:id="@+id/numberPickerNumberOfScans"
+                <EditText
+                    android:id="@+id/editTextNumberOfScans"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:gravity="end"
-                    android:orientation="horizontal" />
+                    android:inputType="number"
+                    android:orientation="horizontal"
+                    android:text="3" />
 
 
-            </LinearLayout>
+            </RelativeLayout>
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/linearLayout4"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -153,16 +155,18 @@
                     android:text="@string/interval_between_scans"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
-                <NumberPicker
-                    android:id="@+id/numberPickerTimeInterval"
+                <EditText
+                    android:id="@+id/editTextTimeInterval"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:gravity="end"
-                    android:orientation="horizontal" />
+                    android:inputType="numberDecimal"
+                    android:orientation="horizontal"
+                    android:text="0.5" />
 
 
-            </LinearLayout>
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -7,9 +7,12 @@ import map.net.apscanner.R;
 
 public class AcquisitionsActivity extends AppCompatActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_acquisitions);
+
+
     }
 }

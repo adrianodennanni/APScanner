@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import map.net.apscanner.R;
 import map.net.apscanner.classes.facility.Facility;
@@ -184,12 +185,12 @@ public class ZonesActivity extends AppCompatActivity {
                         Zone zone = new Zone(zoneJSON.get("name").toString());
 
                         /* Sets up a ISO format and convert servers format to it */
-                        DateFormat dateFormatISO = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                        DateFormat dateFormatISO = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
                         String zoneCreatedAtDate = zoneJSON.get("created_at").toString();
                         Date completeDate = dateFormatISO.parse(zoneCreatedAtDate);
 
                         /* Setting up days only date*/
-                        DateFormat daysOnlyDataFormat = new SimpleDateFormat("dd/MMM/yy");
+                        DateFormat daysOnlyDataFormat = new SimpleDateFormat("dd/MMM/yy", Locale.ENGLISH);
                         String daysOnlyDate = daysOnlyDataFormat.format(completeDate);
                         zone.setDate(daysOnlyDate);
 

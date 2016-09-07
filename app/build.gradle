@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    buildToolsVersion "24.0.2"
 
     defaultConfig {
         applicationId "map.net.apscanner"
@@ -19,6 +19,16 @@ android {
     }
 }
 
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    }
+}
+
 apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
@@ -32,6 +42,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.google.code.gson:gson:2.7'
     compile 'biz.kasual:materialnumberpicker:1.2.1'
+    compile 'com.jakewharton:butterknife:8.4.0'
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile files('libs/kalman-filter-2.0.0.jar')

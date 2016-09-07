@@ -131,12 +131,15 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            scanningDialog = ProgressDialog.show(AcquisitionsActivity.this,
-                    "Scanning...", Integer.toString(currentCompleteScanNumber) + "/"
-                            + Integer.toString(mCurrentAcquisitionSet.getMeasures_per_point()));
+
+            scanningDialog = new ProgressDialog(AcquisitionsActivity.this);
+            scanningDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             scanningDialog.setCancelable(false);
             scanningDialog.setIndeterminate(false);
             scanningDialog.setMax(mCurrentAcquisitionSet.getMeasures_per_point());
+            scanningDialog.setTitle("Scanning...");
+
+            scanningDialog.show();
         }
 
 

@@ -1,7 +1,7 @@
 package map.net.apscanner.classes.acquisition;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.ArrayList;
 
 import map.net.apscanner.classes.access_point.AccessPoint;
 
@@ -10,14 +10,14 @@ import map.net.apscanner.classes.access_point.AccessPoint;
  */
 public class Acquisition implements Serializable {
 
-    List<AccessPoint> accessPointsList;
+    ArrayList<AccessPoint> accessPointsList;
 
 
-    public List<AccessPoint> getAccessPointsList() {
+    public ArrayList<AccessPoint> getAccessPointsList() {
         return accessPointsList;
     }
 
-    public void setAccessPointsList(List<AccessPoint> accessPointsList) {
+    public void setAccessPointsList(ArrayList<AccessPoint> accessPointsList) {
         this.accessPointsList = accessPointsList;
     }
 

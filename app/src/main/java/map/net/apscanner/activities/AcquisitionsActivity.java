@@ -59,7 +59,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
         startAcquisitionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startScan("Kalman Filter", 9, 500);
+                startScan("Kalman Filter", 9, (float) 0.5);
             }
         });
 
@@ -149,7 +149,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
             for (int i = 0; i < mCurrentAcquisitionSet.getMeasures_per_point(); i++) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep((long) (mCurrentAcquisitionSet.getTime_interval() * 1000));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

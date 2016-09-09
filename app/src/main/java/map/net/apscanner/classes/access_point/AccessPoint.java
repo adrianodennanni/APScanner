@@ -8,7 +8,12 @@ import java.io.Serializable;
 public class AccessPoint implements Serializable {
 
     private String BSSID;
-    private short RSSI;
+    private Double RSSI;
+
+    public AccessPoint(String BSSID, Double RSSI) {
+        this.BSSID = BSSID;
+        this.RSSI = RSSI;
+    }
 
 
     public String getBSSID() {
@@ -20,11 +25,11 @@ public class AccessPoint implements Serializable {
     }
 
 
-    public short getRSSI() {
+    public Double getRSSI() {
         return RSSI;
     }
 
-    public void setRSSI(short RSSI) {
+    public void setRSSI(Double RSSI) {
         this.RSSI = RSSI;
     }
 

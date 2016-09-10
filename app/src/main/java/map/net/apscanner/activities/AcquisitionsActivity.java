@@ -1,8 +1,13 @@
 package map.net.apscanner.activities;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +17,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,6 +48,23 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
     Bundle extras;
     Zone zone;
+    private BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context c, Intent intent) {
+            WifiManager wManager = (WifiManager) c.getSystemService(Context.WIFI_SERVICE);
+            List<ScanResult> wifiList = wManager.getScanResults();
+            for (int i = 0; i < wifiList.size(); i++) {
+
+                ScanResult wifi = wManager.getScanResults().get(i);
+                String outputInfo = "SSID: " + wifi.SSID + " " + "Level: " + wifi.level;
+                System.out.println(outputInfo);
+
+            }
+            System.out.println("----------");
+
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,13 +85,12 @@ public class AcquisitionsActivity extends AppCompatActivity {
         startAcquisitionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startScan("Kalman Filter", 9, (float) 0.5);
+                startScan("Kalman Filter", 3, (float) 5);
             }
         });
 
 
     }
-
 
     private void startScan(String normalizationAlgorithm, int scansPerAcquisition, float interval) {
         AcquisitionSet currentAcquisitionSet =
@@ -73,7 +98,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
         new captureAPs(currentAcquisitionSet).execute();
     }
-
 
     /**
      * This function asks for permission to access Coarse Location, necessary to read access points
@@ -117,10 +141,9 @@ public class AcquisitionsActivity extends AppCompatActivity {
         }
     }
 
-
-    //TODO How it should work:
     private class captureAPs extends AsyncTask<Void, Void, Void> {
 
+        final WifiManager wManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         ProgressDialog scanningDialog;
         AcquisitionSet mCurrentAcquisitionSet;
         private int currentCompleteScanNumber = 0;
@@ -146,17 +169,30 @@ public class AcquisitionsActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
 
+            long intervalMiliSeconds = (long) (mCurrentAcquisitionSet.getTime_interval() * 1000);
 
-            for (int i = 0; i < mCurrentAcquisitionSet.getMeasures_per_point(); i++) {
-                try {
-                    Thread.sleep((long) (mCurrentAcquisitionSet.getTime_interval() * 1000));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            /*
+            * This part of the code schedules the scan and calls it after the interval suggested
+            * by the user. It is called n times, with n being the value suggested by the user too.
+            */
+            final Timer timer = new Timer();
+
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    wManager.startScan();
+                    registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+                    currentCompleteScanNumber++;
+                    publishProgress();
+                    if (currentCompleteScanNumber == mCurrentAcquisitionSet.getMeasures_per_point()) {
+                        timer.cancel();
+                        timer.purge();
+                    }
                 }
-                currentCompleteScanNumber++;
-                publishProgress();
-            }
+            }, 0, intervalMiliSeconds);
 
+
+            //TODO: Returning null before it is supposed to happen
             return null;
         }
 
@@ -174,7 +210,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
 
     }
-
 
     private class saveAquisitionSetToFile extends AsyncTask<AcquisitionSet, Void, Void> {
 

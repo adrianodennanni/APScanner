@@ -141,12 +141,21 @@ public class AcquisitionsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Unregisters the wifiReceiver so it won't leak.
+     */
+    @Override
+    protected void onStop() {
+        unregisterReceiver(wifiReceiver);
+        super.onStop();
+    }
+
     private class captureAPs extends AsyncTask<Void, Void, Void> {
 
         final WifiManager wManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         ProgressDialog scanningDialog;
         AcquisitionSet mCurrentAcquisitionSet;
-        private int currentCompleteScanNumber = 0;
+        private int currentCompleteScanNumber = -1;
 
         private captureAPs(AcquisitionSet currentAcquisitionSet) {
             mCurrentAcquisitionSet = currentAcquisitionSet;
@@ -192,7 +201,14 @@ public class AcquisitionsActivity extends AppCompatActivity {
             }, 0, intervalMiliSeconds);
 
 
-            //TODO: Returning null before it is supposed to happen
+            while (currentCompleteScanNumber != mCurrentAcquisitionSet.getMeasures_per_point()) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }
             return null;
         }
 

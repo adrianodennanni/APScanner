@@ -1,10 +1,8 @@
 package map.net.apscanner.activities;
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
@@ -18,6 +16,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,23 +47,9 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
     Bundle extras;
     Zone zone;
-    private BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context c, Intent intent) {
-            WifiManager wManager = (WifiManager) c.getSystemService(Context.WIFI_SERVICE);
-            List<ScanResult> wifiList = wManager.getScanResults();
-            for (int i = 0; i < wifiList.size(); i++) {
 
-                ScanResult wifi = wManager.getScanResults().get(i);
-                String outputInfo = "SSID: " + wifi.SSID + " " + "Level: " + wifi.level;
-                System.out.println(outputInfo);
+    CaptureTask captureAPs;
 
-            }
-            System.out.println("----------");
-
-
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +70,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
         startAcquisitionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startScan("Kalman Filter", 3, (float) 5);
+                startScan("Kalman Filter", 3, (float) 2);
             }
         });
 
@@ -96,7 +81,8 @@ public class AcquisitionsActivity extends AppCompatActivity {
         AcquisitionSet currentAcquisitionSet =
                 new AcquisitionSet(normalizationAlgorithm, interval, scansPerAcquisition);
 
-        new captureAPs(currentAcquisitionSet).execute();
+        captureAPs = new CaptureTask(currentAcquisitionSet);
+        captureAPs.execute();
     }
 
     /**
@@ -141,24 +127,37 @@ public class AcquisitionsActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Unregisters the wifiReceiver so it won't leak.
-     */
-    @Override
-    protected void onStop() {
-        unregisterReceiver(wifiReceiver);
-        super.onStop();
+    private void print(ArrayList<List<ScanResult>> cache) {
+        for (int i = 0; i < cache.size(); i++) {
+            List<ScanResult> wifiList = cache.get(i);
+            for (int j = 0; j < wifiList.size(); j++) {
+
+                ScanResult wifi = wifiList.get(j);
+                String outputInfo = "SSID: " + wifi.SSID + " " + "Level: " + wifi.level;
+                System.out.println(outputInfo);
+
+            }
+            System.out.println("-----------------------");
+        }
     }
 
-    private class captureAPs extends AsyncTask<Void, Void, Void> {
+    private class CaptureTask extends AsyncTask<Void, Void, Void> {
 
         final WifiManager wManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         ProgressDialog scanningDialog;
         AcquisitionSet mCurrentAcquisitionSet;
-        private int currentCompleteScanNumber = -1;
+        private int currentCompleteScanNumber = 0;
+        private int currentStartedScanNumber = 0;
+        private ArrayList<List<ScanResult>> cache;
 
-        private captureAPs(AcquisitionSet currentAcquisitionSet) {
+
+        private CaptureTask(AcquisitionSet currentAcquisitionSet) {
             mCurrentAcquisitionSet = currentAcquisitionSet;
+        }
+
+        public void updateCounter() {
+            currentCompleteScanNumber++;
+            publishProgress();
         }
 
         @Override
@@ -179,6 +178,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
 
             long intervalMiliSeconds = (long) (mCurrentAcquisitionSet.getTime_interval() * 1000);
+            cache = new ArrayList<List<ScanResult>>();
 
             /*
             * This part of the code schedules the scan and calls it after the interval suggested
@@ -189,14 +189,24 @@ public class AcquisitionsActivity extends AppCompatActivity {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    wManager.startScan();
-                    registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-                    currentCompleteScanNumber++;
-                    publishProgress();
-                    if (currentCompleteScanNumber == mCurrentAcquisitionSet.getMeasures_per_point()) {
-                        timer.cancel();
-                        timer.purge();
+
+                    if (!wManager.isWifiEnabled()) {
+                        wManager.setWifiEnabled(true);
                     }
+
+                    if (wManager.startScan()) {
+                        cache.add(wManager.getScanResults());
+
+                        captureAPs.updateCounter();
+
+                        currentStartedScanNumber++;
+
+                        if (currentStartedScanNumber == mCurrentAcquisitionSet.getMeasures_per_point()) {
+                            timer.cancel();
+                            timer.purge();
+                        }
+                    }
+
                 }
             }, 0, intervalMiliSeconds);
 
@@ -221,6 +231,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
 
         protected void onPostExecute(Void param) {
+            print(cache);
             scanningDialog.dismiss();
         }
 
@@ -234,6 +245,5 @@ public class AcquisitionsActivity extends AppCompatActivity {
             return null;
         }
     }
-
 
 }

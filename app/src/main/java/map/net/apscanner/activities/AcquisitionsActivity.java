@@ -16,6 +16,9 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.sromku.simple.storage.SimpleStorage;
+import com.sromku.simple.storage.Storage;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -178,7 +181,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
 
             long intervalMiliSeconds = (long) (mCurrentAcquisitionSet.getTime_interval() * 1000);
-            mCache = new ArrayList<List<ScanResult>>();
+            mCache = new ArrayList<>();
 
             /*
             * This part of the code schedules the scan and calls it after the interval suggested
@@ -217,7 +220,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
             }
             return null;
         }
@@ -239,10 +241,26 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
     }
 
-    private class saveAquisitionSetToFile extends AsyncTask<AcquisitionSet, Void, Void> {
+    private class saveAquisitionSetToFile extends AsyncTask<Void, Void, Void> {
+
+        Storage storage;
+        String mZoneName;
+
+        public saveAquisitionSetToFile(String zoneName, ArrayList<AccessPoint> apList) {
+            mZoneName = zoneName;
+        }
 
         @Override
-        protected Void doInBackground(AcquisitionSet... acquisitionSets) {
+        protected Void doInBackground(Void... params) {
+            storage = SimpleStorage.getInternalStorage(AcquisitionsActivity.this);
+
+            /* Check if directory already exists. If not, create a new one */
+            if (!storage.isDirectoryExists(mZoneName)) {
+                storage.createDirectory(mZoneName);
+            }
+
+
+
             return null;
         }
     }

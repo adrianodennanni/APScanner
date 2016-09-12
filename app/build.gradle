@@ -43,7 +43,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.7'
     compile 'biz.kasual:materialnumberpicker:1.2.1'
     compile 'com.jakewharton:butterknife:8.4.0'
-    compile 'com.jakewharton:butterknife:8.4.0'
+    compile 'com.sromku:simple-storage:1.2.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile files('libs/kalman-filter-2.0.0.jar')
 }

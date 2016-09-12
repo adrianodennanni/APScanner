@@ -24,8 +24,10 @@ import java.util.TimerTask;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import map.net.apscanner.R;
+import map.net.apscanner.classes.access_point.AccessPoint;
 import map.net.apscanner.classes.acquisition_set.AcquisitionSet;
 import map.net.apscanner.classes.zone.Zone;
+import map.net.apscanner.utils.Normalization;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
@@ -127,41 +129,39 @@ public class AcquisitionsActivity extends AppCompatActivity {
         }
     }
 
-    private void print(ArrayList<List<ScanResult>> cache) {
-        for (int i = 0; i < cache.size(); i++) {
-            List<ScanResult> wifiList = cache.get(i);
-            for (int j = 0; j < wifiList.size(); j++) {
 
-                ScanResult wifi = wifiList.get(j);
-                String outputInfo = "SSID: " + wifi.SSID + " " + "Level: " + wifi.level;
-                System.out.println(outputInfo);
-
-            }
-            System.out.println("-----------------------");
-        }
-    }
 
     private class CaptureTask extends AsyncTask<Void, Void, Void> {
 
         final WifiManager wManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         ProgressDialog scanningDialog;
         AcquisitionSet mCurrentAcquisitionSet;
-        private int currentCompleteScanNumber = 0;
-        private int currentStartedScanNumber = 0;
-        private ArrayList<List<ScanResult>> cache;
+        ArrayList<AccessPoint> mNormalizedAccessPointsList;
+        Normalization normalization;
+        private int mCurrentCompleteScanNumber = 0;
+        private int mCurrentStartedScanNumber = 0;
+        private ArrayList<List<ScanResult>> mCache;
 
 
         private CaptureTask(AcquisitionSet currentAcquisitionSet) {
             mCurrentAcquisitionSet = currentAcquisitionSet;
         }
 
+        private void addToNormalzationQueue(ArrayList<List<ScanResult>> onePointScan) {
+            normalization.setOnePointScan(onePointScan);
+        }
+
         public void updateCounter() {
-            currentCompleteScanNumber++;
+            mCurrentCompleteScanNumber++;
             publishProgress();
         }
 
         @Override
         protected void onPreExecute() {
+
+            normalization = new Normalization(
+                    mCurrentAcquisitionSet.getNormalization_algorithm(),
+                    mCurrentAcquisitionSet.getMeasures_per_point());
 
             scanningDialog = new ProgressDialog(AcquisitionsActivity.this);
             scanningDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -178,7 +178,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
 
             long intervalMiliSeconds = (long) (mCurrentAcquisitionSet.getTime_interval() * 1000);
-            cache = new ArrayList<List<ScanResult>>();
+            mCache = new ArrayList<List<ScanResult>>();
 
             /*
             * This part of the code schedules the scan and calls it after the interval suggested
@@ -195,13 +195,13 @@ public class AcquisitionsActivity extends AppCompatActivity {
                     }
 
                     if (wManager.startScan()) {
-                        cache.add(wManager.getScanResults());
+                        mCache.add(wManager.getScanResults());
 
                         captureAPs.updateCounter();
 
-                        currentStartedScanNumber++;
+                        mCurrentStartedScanNumber++;
 
-                        if (currentStartedScanNumber == mCurrentAcquisitionSet.getMeasures_per_point()) {
+                        if (mCurrentStartedScanNumber == mCurrentAcquisitionSet.getMeasures_per_point()) {
                             timer.cancel();
                             timer.purge();
                         }
@@ -211,7 +211,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
             }, 0, intervalMiliSeconds);
 
 
-            while (currentCompleteScanNumber != mCurrentAcquisitionSet.getMeasures_per_point()) {
+            while (mCurrentCompleteScanNumber != mCurrentAcquisitionSet.getMeasures_per_point()) {
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
@@ -223,15 +223,16 @@ public class AcquisitionsActivity extends AppCompatActivity {
         }
 
         protected void onProgressUpdate(Void... params) {
-            scanningDialog.setProgress(currentCompleteScanNumber);
-            scanningDialog.setMessage(Integer.toString(currentCompleteScanNumber) + "/"
+            scanningDialog.setProgress(mCurrentCompleteScanNumber);
+            scanningDialog.setMessage(Integer.toString(mCurrentCompleteScanNumber) + "/"
                     + Integer.toString(mCurrentAcquisitionSet.getMeasures_per_point()));
 
         }
 
 
         protected void onPostExecute(Void param) {
-            print(cache);
+            addToNormalzationQueue(mCache);
+            mNormalizedAccessPointsList = normalization.normalize();
             scanningDialog.dismiss();
         }
 

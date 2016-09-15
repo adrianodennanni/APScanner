@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -236,20 +237,20 @@ public class AcquisitionsActivity extends AppCompatActivity {
         protected void onPostExecute(Void param) {
             addToNormalzationQueue(mCache);
             mNormalizedAccessPointsList = normalization.normalize();
-            new saveAquisitionSetToFile(zone.getName(), mNormalizedAccessPointsList).execute();
+            new saveAcquisitionSetToFile(zone.getName(), mNormalizedAccessPointsList).execute();
             scanningDialog.dismiss();
         }
 
 
     }
 
-    private class saveAquisitionSetToFile extends AsyncTask<Void, Void, Void> {
+    private class saveAcquisitionSetToFile extends AsyncTask<Void, Void, Void> {
 
         Storage storage;
         String mZoneName;
         ArrayList<AccessPoint> mFilteredAcquisition;
 
-        public saveAquisitionSetToFile(String zoneName, ArrayList<AccessPoint> filteredAcquisition) {
+        public saveAcquisitionSetToFile(String zoneName, ArrayList<AccessPoint> filteredAcquisition) {
             mZoneName = zoneName;
             mFilteredAcquisition = filteredAcquisition;
         }
@@ -278,9 +279,17 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
             acquisitionJSON.add("access_points", accessPointsJSON);
 
-            storage.createFile(mZoneName, Long.toString(System.currentTimeMillis()), acquisitionJSON.toString());
-
-
+            /*
+            * Creates a new file with the JSON content.
+            * The name of the time is the current Unix time.
+            * If file wasn't created for some reason, an error Toast will be displayed.
+            */
+            if (!storage.createFile(mZoneName,
+                    Long.toString(System.currentTimeMillis()), acquisitionJSON.toString())) {
+                Toast.makeText(AcquisitionsActivity.this,
+                        "Acquisition cold not be saved. Check your storage.",
+                        Toast.LENGTH_LONG).show();
+            }
 
 
             return null;

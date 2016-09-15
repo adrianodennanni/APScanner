@@ -2,16 +2,10 @@ package map.net.apscanner.utils;
 
 public class UserInfo {
 
-    private static UserInfo ourInstance = new UserInfo();
     private static String mUserEmail;
     private static String mUserToken;
 
     private UserInfo() {
-
-    }
-
-    public static UserInfo getInstance() {
-        return ourInstance;
     }
 
     public static String getUserEmail() {

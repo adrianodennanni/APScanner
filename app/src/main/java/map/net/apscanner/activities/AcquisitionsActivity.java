@@ -16,6 +16,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.sromku.simple.storage.SimpleStorage;
 import com.sromku.simple.storage.Storage;
 
@@ -133,7 +135,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
     }
 
 
-
     private class CaptureTask extends AsyncTask<Void, Void, Void> {
 
         final WifiManager wManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
@@ -235,6 +236,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
         protected void onPostExecute(Void param) {
             addToNormalzationQueue(mCache);
             mNormalizedAccessPointsList = normalization.normalize();
+            new saveAquisitionSetToFile(zone.getName(), mNormalizedAccessPointsList).execute();
             scanningDialog.dismiss();
         }
 
@@ -245,9 +247,11 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
         Storage storage;
         String mZoneName;
+        ArrayList<AccessPoint> mFilteredAcquisition;
 
-        public saveAquisitionSetToFile(String zoneName, ArrayList<AccessPoint> apList) {
+        public saveAquisitionSetToFile(String zoneName, ArrayList<AccessPoint> filteredAcquisition) {
             mZoneName = zoneName;
+            mFilteredAcquisition = filteredAcquisition;
         }
 
         @Override
@@ -258,6 +262,24 @@ public class AcquisitionsActivity extends AppCompatActivity {
             if (!storage.isDirectoryExists(mZoneName)) {
                 storage.createDirectory(mZoneName);
             }
+
+            /* Creating the JSON of the acquisition to be stored */
+            JsonObject acquisitionJSON = new JsonObject();
+            JsonArray accessPointsJSON = new JsonArray();
+            JsonObject accessPointJSON;
+
+            for (AccessPoint ap : mFilteredAcquisition) {
+                accessPointJSON = new JsonObject();
+                accessPointJSON.addProperty("BSSID", ap.getBSSID());
+                accessPointJSON.addProperty("RSSI", ap.getRSSI());
+
+                accessPointsJSON.add(accessPointJSON);
+            }
+
+            acquisitionJSON.add("access_points", accessPointsJSON);
+
+            storage.createFile(mZoneName, Long.toString(System.currentTimeMillis()), acquisitionJSON.toString());
+
 
 
 

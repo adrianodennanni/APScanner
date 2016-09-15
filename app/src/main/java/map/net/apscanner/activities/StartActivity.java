@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import map.net.apscanner.utils.GsonUtil;
 import map.net.apscanner.utils.UserInfo;
 
 /**
@@ -26,8 +27,12 @@ public class StartActivity extends AppCompatActivity {
         if (prefs.getBoolean("logged_in?", false)) {
             nextActivity = new Intent(StartActivity.this, FacilitiesActivity.class);
 
+            /* Gets user login information from shared preferences */
             UserInfo.setUserEmail(prefs.getString("X-User-Email", null));
             UserInfo.setUserToken(prefs.getString("X-User-Token", null));
+
+            /* New instance of Gson Utility */
+            new GsonUtil();
         } else {
             nextActivity = new Intent(StartActivity.this, LoginActivity.class);
         }

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -21,7 +22,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sromku.simple.storage.SimpleStorage;
 import com.sromku.simple.storage.Storage;
+import com.sromku.simple.storage.helpers.OrderType;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -53,9 +59,12 @@ public class AcquisitionsActivity extends AppCompatActivity {
     @BindView(R.id.subtitleAcquisition)
     TextView subtitleAcquisitionTextView;
 
+    @BindView(R.id.recyclerView)
+    RecyclerView aquisitionsRecycleView;
+
     Bundle extras;
     Zone zone;
-
+    Storage storage;
     CaptureTask captureAPs;
 
 
@@ -75,12 +84,21 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
         mayRequestLocationAccess();
 
+        storage = SimpleStorage.getInternalStorage(AcquisitionsActivity.this);
+
+            /* Check if directory already exists. If not, create a new one */
+        if (!storage.isDirectoryExists(zone.getName())) {
+            storage.createDirectory(zone.getName());
+        }
+
         startAcquisitionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startScan("Kalman Filter", 3, (float) 2);
             }
         });
+
+        new LoadAcquisitionsFromStorage().start();
 
 
     }
@@ -97,7 +115,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
      * This function asks for permission to access Coarse Location, necessary to read access points
      * data.
      *
-     * @return if ACCESS_COARSE_LOCATION has been permitted (true) or not (false)
+     * @return Boolean telling if ACCESS_COARSE_LOCATION has been permitted (true) or not (false)
      */
     private boolean mayRequestLocationAccess() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -136,6 +154,10 @@ public class AcquisitionsActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * CaptureTask scans the access points and calls SaveAcquisitionSetToFile method to save
+     * the result in a file.
+     */
     private class CaptureTask extends AsyncTask<Void, Void, Void> {
 
         final WifiManager wManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
@@ -152,7 +174,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
             mCurrentAcquisitionSet = currentAcquisitionSet;
         }
 
-        private void addToNormalzationQueue(ArrayList<List<ScanResult>> onePointScan) {
+        private void addToNormalizationQueue(ArrayList<List<ScanResult>> onePointScan) {
             normalization.setOnePointScan(onePointScan);
         }
 
@@ -235,34 +257,32 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
 
         protected void onPostExecute(Void param) {
-            addToNormalzationQueue(mCache);
+            addToNormalizationQueue(mCache);
             mNormalizedAccessPointsList = normalization.normalize();
-            new saveAcquisitionSetToFile(zone.getName(), mNormalizedAccessPointsList).execute();
+            new SaveAcquisitionSetToFile(mNormalizedAccessPointsList).start();
             scanningDialog.dismiss();
         }
 
 
     }
 
-    private class saveAcquisitionSetToFile extends AsyncTask<Void, Void, Void> {
+    /**
+     * SaveAcquisitionSetToFile converts the ArrayList of Access Points into a structured JSON file.
+     * Then, saves it in a folder with the Zone name.
+     */
+    private class SaveAcquisitionSetToFile extends Thread {
 
-        Storage storage;
-        String mZoneName;
+
         ArrayList<AccessPoint> mFilteredAcquisition;
 
-        public saveAcquisitionSetToFile(String zoneName, ArrayList<AccessPoint> filteredAcquisition) {
-            mZoneName = zoneName;
+        public SaveAcquisitionSetToFile(ArrayList<AccessPoint> filteredAcquisition) {
+
             mFilteredAcquisition = filteredAcquisition;
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
-            storage = SimpleStorage.getInternalStorage(AcquisitionsActivity.this);
+        public void run() {
 
-            /* Check if directory already exists. If not, create a new one */
-            if (!storage.isDirectoryExists(mZoneName)) {
-                storage.createDirectory(mZoneName);
-            }
 
             /* Creating the JSON of the acquisition to be stored */
             JsonObject acquisitionJSON = new JsonObject();
@@ -284,7 +304,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
             * The name of the time is the current Unix time.
             * If file wasn't created for some reason, an error Toast will be displayed.
             */
-            if (!storage.createFile(mZoneName,
+            if (!storage.createFile(zone.getName(),
                     Long.toString(System.currentTimeMillis()), acquisitionJSON.toString())) {
                 Toast.makeText(AcquisitionsActivity.this,
                         "Acquisition cold not be saved. Check your storage.",
@@ -292,8 +312,43 @@ public class AcquisitionsActivity extends AppCompatActivity {
             }
 
 
-            return null;
         }
     }
 
+    private class LoadAcquisitionsFromStorage extends Thread {
+        BufferedReader bufferedReader;
+        StringBuilder stringBuilder;
+
+        public void run() {
+
+            /* Loads all acquisitions stored in files. */
+            List<File> files = storage.getFiles(zone.getName(), OrderType.NAME);
+            for (File file : files) {
+                try {
+                    BufferedReader bufferedReader = new BufferedReader(new FileReader(file.getName()));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line = bufferedReader.readLine();
+                    while (line != null) {
+                        stringBuilder.append(line);
+                        line = bufferedReader.readLine();
+                    }
+                    String result = stringBuilder.toString();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            /* If there is at least one file saved, the user should not be able to change configurations
+            * about the current Acquisition Set (normalization method, etc) */
+            //TODO: Load configurations fragment if it is empty, otherwise load configurations
+            if (files.isEmpty()) {
+
+            }
+
+        }
+    }
+
+
 }
+
+

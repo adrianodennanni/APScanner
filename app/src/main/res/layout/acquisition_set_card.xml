@@ -33,49 +33,49 @@
                 android:textColor="@color/cardview_light_background" />
 
             <TextView
+                android:id="@+id/textViewNormalizationMethod"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/normalization_method"
-                android:padding="4dp"
-                android:id="@+id/textViewNormalizationMethod"
-                android:layout_below="@+id/Title"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentTop="false" />
+                android:layout_alignParentTop="false"
+                android:layout_below="@+id/Title"
+                android:padding="4dp"
+                android:text="@string/normalization_method"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/samples_per_acquisition"
-                android:padding="4dp"
                 android:id="@+id/textViewSamplesPerAcquisition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:layout_below="@+id/textViewNormalizationMethod"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:padding="4dp"
+                android:text="@string/samples_per_acquisition"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/acquisition_interval"
-                android:padding="4dp"
                 android:id="@+id/textViewAcquisitionInterval"
-                android:layout_below="@+id/textViewSamplesPerAcquisition"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
-
-            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/total_acquisitions"
-                android:padding="4dp"
-                android:id="@+id/textViewNumberOfAcquisitions"
-                android:layout_below="@+id/textViewAcquisitionInterval"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/textViewSamplesPerAcquisition"
+                android:padding="4dp"
+                android:text="@string/acquisition_interval"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/textViewNumberOfAcquisitions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/textViewAcquisitionInterval"
+                android:padding="4dp"
+                android:text="@string/total_aps"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>

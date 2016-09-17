@@ -23,7 +23,7 @@
     <string name="normalization_method">Normalization Method:</string>
     <string name="acquisition_interval">Acquisitions Interval:</string>
     <string name="samples_per_acquisition">Samples per Acquisition:</string>
-    <string name="total_acquisitions">Total of Acquisitions:</string>
+    <string name="total_aps">Total of Access Points Scanned:</string>
     <string name="erase_current_acquisition_set">Erase current acquisition set</string>
     <string name="normalization_algorithm">Normalization Algorithm:</string>
     <string name="number_of_scans_per_acquisition">Number of scans per acquisition:</string>

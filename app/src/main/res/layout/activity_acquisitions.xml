@@ -65,7 +65,7 @@
         android:layout_below="@+id/toolbar"
         android:layout_margin="16dp"
         android:orientation="vertical"
-        android:weightSum="2">
+        android:weightSum="3">
 
 
         <android.support.v7.widget.RecyclerView
@@ -77,9 +77,10 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_marginTop="8dp"
+            android:layout_weight="2"
             android:orientation="vertical"
-            android:weightSum="2">
+            android:weightSum="3">
 
             <LinearLayout
                 android:id="@+id/linearLayout2"
@@ -91,6 +92,7 @@
                 android:layout_marginLeft="0dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="0dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
@@ -117,6 +119,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/linearLayout2"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
@@ -147,6 +150,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/linearLayout3"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
@@ -170,22 +174,21 @@
 
             </RelativeLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fabStartMeasure"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/linearLayout4"
-                android:gravity="center_vertical|center_horizontal">
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:clickable="true"
+                android:src="@drawable/ic_add_white_24dp" />
 
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/fabStartMeasure"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_play_arrow_white_48dp" />
-            </LinearLayout>
+
         </RelativeLayout>
 
     </LinearLayout>

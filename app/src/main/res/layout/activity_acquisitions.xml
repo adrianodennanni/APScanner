@@ -5,15 +5,6 @@
     android:layout_height="match_parent"
     tools:context="map.net.apscanner.activities.AcquisitionsActivity">
 
-    <fragment
-        android:id="@+id/fragment4"
-        android:name="android.support.v7.app.AppCompatDialogFragment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
-        android:layout_margin="8dp"
-        tools:layout="@layout/new_acquisition_set_fragment" />
-
     <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -64,6 +55,16 @@
         android:text="@string/acquisitions"
         android:textColor="@android:color/primary_text_dark"
         android:textSize="24sp" />
+
+    <FrameLayout
+        android:id="@+id/mainAcquisitionFragment"
+        android:name="android.support.v7.app.AppCompatDialogFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/toolbar"
+        android:layout_margin="16dp" />
 
 
 </RelativeLayout>

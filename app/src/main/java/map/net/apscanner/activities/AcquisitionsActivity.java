@@ -1,5 +1,7 @@
 package map.net.apscanner.activities;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -10,9 +12,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -39,6 +39,7 @@ import map.net.apscanner.R;
 import map.net.apscanner.classes.access_point.AccessPoint;
 import map.net.apscanner.classes.acquisition_set.AcquisitionSet;
 import map.net.apscanner.classes.zone.Zone;
+import map.net.apscanner.fragments.NewAcquisitionSetFragment;
 import map.net.apscanner.utils.Normalization;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
@@ -47,8 +48,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
     private static final int REQUEST_ACCESS_LOCATION = 0;
 
-    @BindView(R.id.fabStartMeasure)
-    FloatingActionButton startAcquisitionButton;
 
     @BindView(R.id.imageButtonEraseCurrentSet)
     ImageButton eraseCurrentSetButton;
@@ -59,8 +58,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
     @BindView(R.id.subtitleAcquisition)
     TextView subtitleAcquisitionTextView;
 
-    @BindView(R.id.recyclerView)
-    RecyclerView aquisitionsRecycleView;
 
     Bundle extras;
     Zone zone;
@@ -90,13 +87,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
         if (!storage.isDirectoryExists(zone.getName())) {
             storage.createDirectory(zone.getName());
         }
-
-        startAcquisitionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startScan("Kalman Filter", 3, (float) 2);
-            }
-        });
 
         new LoadAcquisitionsFromStorage().start();
 
@@ -316,8 +306,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
     }
 
     private class LoadAcquisitionsFromStorage extends Thread {
-        BufferedReader bufferedReader;
-        StringBuilder stringBuilder;
 
         public void run() {
 
@@ -341,9 +329,27 @@ public class AcquisitionsActivity extends AppCompatActivity {
             /* If there is at least one file saved, the user should not be able to change configurations
             * about the current Acquisition Set (normalization method, etc) */
             //TODO: Load configurations fragment if it is empty, otherwise load configurations
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
             if (files.isEmpty()) {
+                NewAcquisitionSetFragment newAcquisitionSetFragment =
+                        new NewAcquisitionSetFragment();
+
+
+                fragmentTransaction.add(R.id.mainAcquisitionFragment, newAcquisitionSetFragment);
+                fragmentTransaction.commit();
+
+                newAcquisitionSetFragment.getStartAcquisitionButton().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startScan("Kalman Filter", 3, (float) 2);
+                    }
+                });
+
 
             }
+
 
         }
     }

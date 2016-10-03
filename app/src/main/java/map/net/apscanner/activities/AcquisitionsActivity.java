@@ -2,13 +2,8 @@ package map.net.apscanner.activities;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,8 +25,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,7 +33,6 @@ import map.net.apscanner.classes.access_point.AccessPoint;
 import map.net.apscanner.classes.acquisition_set.AcquisitionSet;
 import map.net.apscanner.classes.zone.Zone;
 import map.net.apscanner.fragments.NewAcquisitionSetFragment;
-import map.net.apscanner.utils.Normalization;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
@@ -62,7 +54,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
     Bundle extras;
     Zone zone;
     Storage storage;
-    CaptureTask captureAPs;
 
 
     @Override
@@ -144,117 +135,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * CaptureTask scans the access points and calls SaveAcquisitionSetToFile method to save
-     * the result in a file.
-     */
-    private class CaptureTask extends AsyncTask<Void, Void, Void> {
 
-        final WifiManager wManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        ProgressDialog scanningDialog;
-        AcquisitionSet mCurrentAcquisitionSet;
-        ArrayList<AccessPoint> mNormalizedAccessPointsList;
-        Normalization normalization;
-        private int mCurrentCompleteScanNumber = 0;
-        private int mCurrentStartedScanNumber = 0;
-        private ArrayList<List<ScanResult>> mCache;
-
-
-        private CaptureTask(AcquisitionSet currentAcquisitionSet) {
-            mCurrentAcquisitionSet = currentAcquisitionSet;
-        }
-
-        private void addToNormalizationQueue(ArrayList<List<ScanResult>> onePointScan) {
-            normalization.setOnePointScan(onePointScan);
-        }
-
-        public void updateCounter() {
-            mCurrentCompleteScanNumber++;
-            publishProgress();
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            normalization = new Normalization(
-                    mCurrentAcquisitionSet.getNormalization_algorithm(),
-                    mCurrentAcquisitionSet.getMeasures_per_point());
-
-            scanningDialog = new ProgressDialog(AcquisitionsActivity.this);
-            scanningDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            scanningDialog.setCancelable(false);
-            scanningDialog.setIndeterminate(false);
-            scanningDialog.setMax(mCurrentAcquisitionSet.getMeasures_per_point());
-            scanningDialog.setTitle("Scanning...");
-
-            scanningDialog.show();
-        }
-
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            long intervalMiliSeconds = (long) (mCurrentAcquisitionSet.getTime_interval() * 1000);
-            mCache = new ArrayList<>();
-
-            /*
-            * This part of the code schedules the scan and calls it after the interval suggested
-            * by the user. It is called n times, with n being the value suggested by the user too.
-            */
-            final Timer timer = new Timer();
-
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-
-                    if (!wManager.isWifiEnabled()) {
-                        wManager.setWifiEnabled(true);
-                    }
-
-                    if (wManager.startScan()) {
-                        mCache.add(wManager.getScanResults());
-
-                        captureAPs.updateCounter();
-
-                        mCurrentStartedScanNumber++;
-
-                        if (mCurrentStartedScanNumber == mCurrentAcquisitionSet.getMeasures_per_point()) {
-                            timer.cancel();
-                            timer.purge();
-                        }
-                    }
-
-                }
-            }, 0, intervalMiliSeconds);
-
-
-            while (mCurrentCompleteScanNumber != mCurrentAcquisitionSet.getMeasures_per_point()) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-        protected void onProgressUpdate(Void... params) {
-            scanningDialog.setProgress(mCurrentCompleteScanNumber);
-            scanningDialog.setMessage(Integer.toString(mCurrentCompleteScanNumber) + "/"
-                    + Integer.toString(mCurrentAcquisitionSet.getMeasures_per_point()));
-
-        }
-
-
-        protected void onPostExecute(Void param) {
-            addToNormalizationQueue(mCache);
-            mNormalizedAccessPointsList = normalization.normalize();
-            new SaveAcquisitionSetToFile(mNormalizedAccessPointsList).start();
-            scanningDialog.dismiss();
-        }
-
-
-    }
 
     /**
      * SaveAcquisitionSetToFile converts the ArrayList of Access Points into a structured JSON file.

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="sign_in_url">http://52.67.105.105:3000/users/sign_in</string>
+    <string name="sign_in_url">http://52.67.171.39:3000/users/sign_in</string>
 
-    <string name="get_facilities_url">http://52.67.105.105:3000/facilities</string>
-    <string name="new_facility_url">http://52.67.105.105:3000/create_facility</string>
+    <string name="get_facilities_url">http://52.67.171.39:3000/facilities</string>
+    <string name="new_facility_url">http://52.67.171.39:3000/create_facility</string>
 
-    <string name="get_zones_url">http://52.67.105.105:3000/zones</string>
-    <string name="new_zone_url">http://52.67.105.105:3000/create_zone</string>
+    <string name="get_zones_url">http://52.67.171.39:3000/zones</string>
+    <string name="new_zone_url">http://52.67.171.39:3000/create_zone</string>
 </resources>

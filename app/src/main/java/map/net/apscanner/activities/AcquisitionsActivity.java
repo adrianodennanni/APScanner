@@ -11,10 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.sromku.simple.storage.SimpleStorage;
 import com.sromku.simple.storage.Storage;
 import com.sromku.simple.storage.helpers.OrderType;
@@ -23,16 +20,15 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import map.net.apscanner.R;
-import map.net.apscanner.classes.access_point.AccessPoint;
 import map.net.apscanner.classes.acquisition_set.AcquisitionSet;
 import map.net.apscanner.classes.zone.Zone;
 import map.net.apscanner.fragments.NewAcquisitionSetFragment;
+import map.net.apscanner.utils.CaptureTask;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
@@ -88,7 +84,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
         AcquisitionSet currentAcquisitionSet =
                 new AcquisitionSet(normalizationAlgorithm, interval, scansPerAcquisition);
 
-        captureAPs = new CaptureTask(currentAcquisitionSet);
+        CaptureTask captureAPs = new CaptureTask(currentAcquisitionSet, AcquisitionsActivity.this, zone);
         captureAPs.execute();
     }
 
@@ -137,54 +133,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
 
 
-    /**
-     * SaveAcquisitionSetToFile converts the ArrayList of Access Points into a structured JSON file.
-     * Then, saves it in a folder with the Zone name.
-     */
-    private class SaveAcquisitionSetToFile extends Thread {
 
-
-        ArrayList<AccessPoint> mFilteredAcquisition;
-
-        public SaveAcquisitionSetToFile(ArrayList<AccessPoint> filteredAcquisition) {
-
-            mFilteredAcquisition = filteredAcquisition;
-        }
-
-        @Override
-        public void run() {
-
-
-            /* Creating the JSON of the acquisition to be stored */
-            JsonObject acquisitionJSON = new JsonObject();
-            JsonArray accessPointsJSON = new JsonArray();
-            JsonObject accessPointJSON;
-
-            for (AccessPoint ap : mFilteredAcquisition) {
-                accessPointJSON = new JsonObject();
-                accessPointJSON.addProperty("BSSID", ap.getBSSID());
-                accessPointJSON.addProperty("RSSI", ap.getRSSI());
-
-                accessPointsJSON.add(accessPointJSON);
-            }
-
-            acquisitionJSON.add("access_points", accessPointsJSON);
-
-            /*
-            * Creates a new file with the JSON content.
-            * The name of the time is the current Unix time.
-            * If file wasn't created for some reason, an error Toast will be displayed.
-            */
-            if (!storage.createFile(zone.getName(),
-                    Long.toString(System.currentTimeMillis()), acquisitionJSON.toString())) {
-                Toast.makeText(AcquisitionsActivity.this,
-                        "Acquisition cold not be saved. Check your storage.",
-                        Toast.LENGTH_LONG).show();
-            }
-
-
-        }
-    }
 
     private class LoadAcquisitionsFromStorage extends Thread {
 

@@ -13,6 +13,7 @@ import java.util.TimerTask;
 
 import map.net.apscanner.classes.access_point.AccessPoint;
 import map.net.apscanner.classes.acquisition_set.AcquisitionSet;
+import map.net.apscanner.classes.zone.Zone;
 
 /**
  * CaptureTask scans the access points and calls SaveAcquisitionSetToFile method to save
@@ -27,12 +28,15 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
     private int mCurrentCompleteScanNumber = 0;
     private int mCurrentStartedScanNumber = 0;
     private ArrayList<List<ScanResult>> mCache;
-    private Context context;
+    private Context mContext;
+    private Zone mZone;
 
 
-    private CaptureTask(AcquisitionSet currentAcquisitionSet) {
+    public CaptureTask(AcquisitionSet currentAcquisitionSet, Context context, Zone zone) {
         mCurrentAcquisitionSet = currentAcquisitionSet;
-        wManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        wManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+        mContext = context;
+        mZone = zone;
     }
 
     private void addToNormalizationQueue(ArrayList<List<ScanResult>> onePointScan) {
@@ -51,7 +55,7 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
                 mCurrentAcquisitionSet.getNormalization_algorithm(),
                 mCurrentAcquisitionSet.getMeasures_per_point());
 
-        scanningDialog = new ProgressDialog(context);
+        scanningDialog = new ProgressDialog(mContext);
         scanningDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         scanningDialog.setCancelable(false);
         scanningDialog.setIndeterminate(false);
@@ -85,7 +89,7 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
                 if (wManager.startScan()) {
                     mCache.add(wManager.getScanResults());
 
-                    captureAPs.updateCounter();
+                    updateCounter();
 
                     mCurrentStartedScanNumber++;
 
@@ -120,7 +124,7 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void param) {
         addToNormalizationQueue(mCache);
         ArrayList<AccessPoint> mNormalizedAccessPointsList = mNormalization.normalize();
-        new SaveAcquisitionSetToFile(mNormalizedAccessPointsList).start();
+        new SaveAcquisitionSetToFile(mNormalizedAccessPointsList, mContext, mZone).start();
         scanningDialog.dismiss();
     }
 

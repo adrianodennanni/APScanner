@@ -6,13 +6,12 @@ import java.io.Serializable;
 
 public class Facility implements Serializable {
 
+    // Only @Expose variables are used by Gson
+    @Expose
     private String name;
 
-    //Exposed variables are not serialized by Gson
-    @Expose
     private String date;
 
-    @Expose
     private String id;
 
     public Facility(String name) {

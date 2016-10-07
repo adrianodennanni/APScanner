@@ -6,10 +6,12 @@ import java.io.Serializable;
 
 public class Zone implements Serializable {
 
+    @Expose
     private String name;
+    @Expose
     private String facility_id;
-    @Expose private String date;
-    @Expose private String id;
+    private String date;
+    private String id;
 
     public Zone(String name) {
         this.name = name;

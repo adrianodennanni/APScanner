@@ -59,6 +59,8 @@ public class NewAcquisitionSetFragment extends Fragment {
                         zone);
 
                 captureAPs.execute();
+
+
             }
         });
 

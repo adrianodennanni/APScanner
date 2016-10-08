@@ -48,7 +48,7 @@ public class LoadAcquisitionsFromStorage extends Thread {
         List<File> files = mStorage.getFiles(mZone.getName(), OrderType.NAME);
         for (File file : files) {
             try {
-                BufferedReader bufferedReader = new BufferedReader(new FileReader(file.getName()));
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(file.getPath()));
                 StringBuilder stringBuilder = new StringBuilder();
                 String line = bufferedReader.readLine();
                 while (line != null) {
@@ -56,6 +56,7 @@ public class LoadAcquisitionsFromStorage extends Thread {
                     line = bufferedReader.readLine();
                 }
                 String result = stringBuilder.toString();
+                int a = 0;
             } catch (IOException e) {
                 e.printStackTrace();
             }

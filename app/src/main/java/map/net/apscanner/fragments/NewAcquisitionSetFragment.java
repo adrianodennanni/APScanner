@@ -28,6 +28,7 @@ public class NewAcquisitionSetFragment extends Fragment {
     @BindView(R.id.editTextTimeInterval)
     EditText timeIntervalEditText;
 
+
     Zone zone;
 
     public NewAcquisitionSetFragment() {

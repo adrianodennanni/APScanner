@@ -43,7 +43,7 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
         mNormalization.setOnePointScan(onePointScan);
     }
 
-    public void updateCounter() {
+    private void updateCounter() {
         mCurrentCompleteScanNumber++;
         publishProgress();
     }

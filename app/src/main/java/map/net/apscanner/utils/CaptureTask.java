@@ -34,8 +34,8 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
 
     public CaptureTask(AcquisitionSet currentAcquisitionSet, Context context, Zone zone) {
         mCurrentAcquisitionSet = currentAcquisitionSet;
-        wManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
         mContext = context;
+        wManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         mZone = zone;
     }
 

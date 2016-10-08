@@ -62,7 +62,7 @@ public class SaveAcquisitionSetToFile extends Thread {
         if (!mStorage.createFile(mZone.getName(),
                 Long.toString(System.currentTimeMillis()), acquisitionJSON.toString())) {
             Toast.makeText(mContext,
-                    "Acquisition cold not be saved. Check your storage.",
+                    "Acquisition could not be saved. Check your storage.",
                     Toast.LENGTH_LONG).show();
         }
 

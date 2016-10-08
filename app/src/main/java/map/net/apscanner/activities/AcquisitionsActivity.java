@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -132,9 +131,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
 
 
-
-
-
     private class LoadAcquisitionsFromStorage extends Thread {
 
         public void run() {
@@ -166,16 +162,10 @@ public class AcquisitionsActivity extends AppCompatActivity {
                 NewAcquisitionSetFragment newAcquisitionSetFragment =
                         new NewAcquisitionSetFragment();
 
+                getIntent().putExtra("zone", zone);
 
                 fragmentTransaction.add(R.id.mainAcquisitionFragment, newAcquisitionSetFragment);
                 fragmentTransaction.commit();
-
-                newAcquisitionSetFragment.getStartAcquisitionButton().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startScan("Kalman Filter", 3, (float) 2);
-                    }
-                });
 
 
             }

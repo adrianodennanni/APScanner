@@ -1,9 +1,11 @@
 package map.net.apscanner.activities;
 
+import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,15 +20,23 @@ import com.sromku.simple.storage.SimpleStorage;
 import com.sromku.simple.storage.Storage;
 import com.sromku.simple.storage.helpers.OrderType;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import map.net.apscanner.R;
+import map.net.apscanner.classes.acquisition_set.AcquisitionSet;
 import map.net.apscanner.classes.zone.Zone;
 import map.net.apscanner.fragments.CurrentAcquisitionSetFragment;
 import map.net.apscanner.fragments.NewAcquisitionSetFragment;
+import map.net.apscanner.utils.GsonUtil;
 import map.net.apscanner.utils.LoadAcquisitionsFromStorage;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
@@ -120,6 +130,12 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
                 }
             });
+
+            sendCurrentSetsButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    new sendAcquisitionSet(storage).execute();
+                }
+            });
         }
 
         fragmentTransaction.commit();
@@ -163,6 +179,54 @@ public class AcquisitionsActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
             overridePendingTransition(0, 0);
+        }
+    }
+
+    public class sendAcquisitionSet extends AsyncTask<Void, Void, Void> {
+
+        private Storage mStorage;
+
+        public sendAcquisitionSet(Storage storage) {
+            mStorage = storage;
+        }
+
+        @SuppressLint("NewApi")
+        @Override
+        protected Void doInBackground(Void... params) {
+            JSONArray acquisitionsJSONArray = new JSONArray();
+
+            final AcquisitionSet currentAcquisitionSet = GsonUtil.getGson().fromJson(
+                    new String(storage.readFile(zone.getName(), "settings"), Charset.forName("UTF-8")),
+                    AcquisitionSet.class
+            );
+
+            for (File file : mStorage.getFiles(zone.getName(), OrderType.NAME)) {
+                if (!Objects.equals(file.getName(), "settings")) {
+                    acquisitionsJSONArray.put(GsonUtil.getGson().toJson(new String(
+                            storage.readFile(zone.getName(), file.getName()),
+                            Charset.forName("UTF-8")))
+                    );
+                }
+            }
+            JSONObject acquisitionJSONObject = new JSONObject();
+            JSONObject postBody = new JSONObject();
+            try {
+                acquisitionJSONObject.put("zone_id", zone.getId());
+                acquisitionJSONObject.put("normalization_algorithm",
+                        currentAcquisitionSet.getNormalization_algorithm());
+                acquisitionJSONObject.put("time_interval",
+                        currentAcquisitionSet.getTime_interval());
+                acquisitionJSONObject.put("measures_per_point",
+                        currentAcquisitionSet.getMeasures_per_point());
+                acquisitionJSONObject.put("acquisitions", acquisitionsJSONArray);
+
+                postBody.put("acquisition_set", acquisitionJSONObject);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return null;
         }
     }
 

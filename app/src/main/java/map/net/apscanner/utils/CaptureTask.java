@@ -1,7 +1,9 @@
 package map.net.apscanner.utils;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -125,6 +127,12 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
         addToNormalizationQueue(mCache);
         ArrayList<AccessPoint> mNormalizedAccessPointsList = mNormalization.normalize();
         new SaveAcquisitionSetToFile(mNormalizedAccessPointsList, mContext, mZone).start();
+
+        Intent intent = ((Activity) mContext).getIntent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        ((Activity) mContext).finish();
+        ((Activity) mContext).overridePendingTransition(0, 0);
+        mContext.startActivity(intent);
         scanningDialog.dismiss();
     }
 

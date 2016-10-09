@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.sromku.simple.storage.SimpleStorage;
 import com.sromku.simple.storage.Storage;
 import com.sromku.simple.storage.helpers.OrderType;
@@ -93,11 +95,35 @@ public class AcquisitionsActivity extends AppCompatActivity {
                     new CurrentAcquisitionSetFragment();
 
             fragmentTransaction.add(R.id.mainAcquisitionFragment, currentAcquisitionSetFragment);
+
+
+            eraseCurrentSetButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    new MaterialDialog.Builder(AcquisitionsActivity.this)
+                            .title("Confirmation")
+                            .content("Are you sure you want to erase all Acquisitions?")
+                            .positiveText("Yes")
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    storage.deleteDirectory(zone.getName());
+
+                                    Intent intent = new Intent(AcquisitionsActivity.this, AcquisitionsActivity.class);
+                                    intent.putExtra("ZONE", zone);
+                                    startActivity(intent);
+                                    finish();
+                                    overridePendingTransition(0, 0);
+                                }
+                            })
+                            .negativeText("No")
+                            .show();
+
+                }
+            });
         }
 
         fragmentTransaction.commit();
         new LoadAcquisitionsFromStorage(storage, zone, this).start();
-
 
     }
 
@@ -134,19 +160,11 @@ public class AcquisitionsActivity extends AppCompatActivity {
         if (requestCode == REQUEST_ACCESS_LOCATION) {
             Intent intent = new Intent(AcquisitionsActivity.this, AcquisitionsActivity.class);
             intent.putExtra("ZONE", zone);
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startActivity(intent);
-                finish();
-            } else {
-                startActivity(intent);
-                finish();
-            }
+            startActivity(intent);
+            finish();
+            overridePendingTransition(0, 0);
         }
     }
-
-
-
-
 
 
 }

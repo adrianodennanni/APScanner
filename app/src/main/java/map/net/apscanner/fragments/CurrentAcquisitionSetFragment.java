@@ -85,22 +85,20 @@ public class CurrentAcquisitionSetFragment extends Fragment {
                                 currentAcquisitionSet.getMeasures_per_point()
                         );
 
-                Storage storage = SimpleStorage.getInternalStorage(getActivity());
-                String settings = GsonUtil.getGson().toJson(currentAcquisitionSet);
-                storage.createFile(zone.getName(), "settings", settings);
-
 
                 CaptureTask captureAPs = new CaptureTask(
-                        currentAcquisitionSet,
+                        newAcquisitionSet,
                         getActivity(),
                         zone);
 
                 captureAPs.execute();
 
+                currentNumberOfAcquisitionsTextView.setText(
+                        Integer.toString(storage.getFiles(zone.getName(), OrderType.NAME).size() - 1)
+                );
 
             }
         });
-
 
         return view;
 

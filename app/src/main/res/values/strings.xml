@@ -28,4 +28,8 @@
     <string name="normalization_algorithm">Normalization Algorithm:</string>
     <string name="number_of_scans_per_acquisition">Number of scans per acquisition:</string>
     <string name="interval_between_scans">Interval between scans:</string>
+    <string name="scans_per_acquisition">Scans per acquisition:</string>
+    <string name="interval_beetween_scans">Interval beetween scans:</string>
+    <string name="current_number_of_acquisitions">Current number of acquisitions:</string>
+    <string name="current_acquisition_set_settings">Current acquisition set settings:</string>
 </resources>

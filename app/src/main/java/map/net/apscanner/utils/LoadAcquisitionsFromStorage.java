@@ -1,8 +1,5 @@
 package map.net.apscanner.utils;
 
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.widget.ImageButton;
 
@@ -18,7 +15,6 @@ import java.util.List;
 import butterknife.BindView;
 import map.net.apscanner.R;
 import map.net.apscanner.classes.zone.Zone;
-import map.net.apscanner.fragments.NewAcquisitionSetFragment;
 
 /**
  * Created by adriano on 10/8/16.
@@ -62,32 +58,6 @@ public class LoadAcquisitionsFromStorage extends Thread {
             }
         }
 
-            /* If there is at least one file saved, the user should not be able to change configurations
-            * about the current Acquisition Set (normalization method, etc) */
-
-        FragmentManager fragmentManager = ((Activity) mContext).getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        if (files.isEmpty()) {
-            NewAcquisitionSetFragment newAcquisitionSetFragment =
-                    new NewAcquisitionSetFragment();
-
-            ((Activity) mContext).getIntent().putExtra("zone", mZone);
-
-            fragmentTransaction.add(R.id.mainAcquisitionFragment, newAcquisitionSetFragment);
-            fragmentTransaction.commit();
-
-            mIsEmpty = true;
-
-
-        } else {
-            mIsEmpty = false;
-        }
-
-
     }
 
-    public boolean isEmpty() {
-        return mIsEmpty;
-    }
 }

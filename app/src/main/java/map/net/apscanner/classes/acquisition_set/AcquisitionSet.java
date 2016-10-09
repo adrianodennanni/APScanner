@@ -1,12 +1,16 @@
 package map.net.apscanner.classes.acquisition_set;
 
-/**
- * Created by adriano on 9/7/16.
- */
-public class AcquisitionSet {
+import com.google.gson.annotations.Expose;
 
+import java.io.Serializable;
+
+public class AcquisitionSet implements Serializable {
+
+    @Expose
     private String normalization_algorithm;
+    @Expose
     private float time_interval;
+    @Expose
     private int measures_per_point;
 
     public AcquisitionSet(String normalization_algorithm, float time_interval, int measures_per_point) {

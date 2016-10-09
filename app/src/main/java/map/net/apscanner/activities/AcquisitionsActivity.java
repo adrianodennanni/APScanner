@@ -1,5 +1,7 @@
 package map.net.apscanner.activities;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -21,6 +23,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import map.net.apscanner.R;
 import map.net.apscanner.classes.zone.Zone;
+import map.net.apscanner.fragments.CurrentAcquisitionSetFragment;
+import map.net.apscanner.fragments.NewAcquisitionSetFragment;
 import map.net.apscanner.utils.LoadAcquisitionsFromStorage;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
@@ -70,10 +74,28 @@ public class AcquisitionsActivity extends AppCompatActivity {
         }
 
         List<File> files = storage.getFiles(zone.getName(), OrderType.NAME);
+
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        getIntent().putExtra("zone", zone);
+
         if (files.isEmpty()) {
             eraseCurrentSetButton.setVisibility(View.INVISIBLE);
             sendCurrentSetsButton.setVisibility(View.INVISIBLE);
+
+            NewAcquisitionSetFragment newAcquisitionSetFragment =
+                    new NewAcquisitionSetFragment();
+
+            fragmentTransaction.add(R.id.mainAcquisitionFragment, newAcquisitionSetFragment);
+        } else {
+            CurrentAcquisitionSetFragment currentAcquisitionSetFragment =
+                    new CurrentAcquisitionSetFragment();
+
+            fragmentTransaction.add(R.id.mainAcquisitionFragment, currentAcquisitionSetFragment);
         }
+
+        fragmentTransaction.commit();
         new LoadAcquisitionsFromStorage(storage, zone, this).start();
 
 

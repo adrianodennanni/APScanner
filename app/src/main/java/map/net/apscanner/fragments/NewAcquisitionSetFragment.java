@@ -10,12 +10,16 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.sromku.simple.storage.SimpleStorage;
+import com.sromku.simple.storage.Storage;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import map.net.apscanner.R;
 import map.net.apscanner.classes.acquisition_set.AcquisitionSet;
 import map.net.apscanner.classes.zone.Zone;
 import map.net.apscanner.utils.CaptureTask;
+import map.net.apscanner.utils.GsonUtil;
 
 public class NewAcquisitionSetFragment extends Fragment {
 
@@ -31,9 +35,6 @@ public class NewAcquisitionSetFragment extends Fragment {
 
     Zone zone;
 
-    public NewAcquisitionSetFragment() {
-
-    }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -48,10 +49,15 @@ public class NewAcquisitionSetFragment extends Fragment {
             public void onClick(View v) {
                 AcquisitionSet currentAcquisitionSet =
                         new AcquisitionSet(
-                                methodSpinner.toString(),
+                                methodSpinner.getSelectedItem().toString(),
                                 Float.parseFloat(timeIntervalEditText.getText().toString()),
                                 Integer.parseInt(numberOfScansEditText.getText().toString())
                         );
+
+                Storage storage = SimpleStorage.getInternalStorage(getActivity());
+                String settings = GsonUtil.getGson().toJson(currentAcquisitionSet);
+                storage.createFile(zone.getName(), "settings", settings);
+
 
                 CaptureTask captureAPs = new CaptureTask(
                         currentAcquisitionSet,

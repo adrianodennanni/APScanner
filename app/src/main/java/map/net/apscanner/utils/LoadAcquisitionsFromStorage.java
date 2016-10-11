@@ -1,6 +1,5 @@
 package map.net.apscanner.utils;
 
-import android.content.Context;
 import android.widget.ImageButton;
 
 import com.sromku.simple.storage.Storage;
@@ -16,10 +15,6 @@ import butterknife.BindView;
 import map.net.apscanner.R;
 import map.net.apscanner.classes.zone.Zone;
 
-/**
- * Created by adriano on 10/8/16.
- */
-
 public class LoadAcquisitionsFromStorage extends Thread {
 
     @BindView(R.id.imageButtonEraseCurrentSet)
@@ -28,14 +23,12 @@ public class LoadAcquisitionsFromStorage extends Thread {
     ImageButton sendCurrentSetsButton;
     private Storage mStorage;
     private Zone mZone;
-    private Context mContext;
-    private Boolean mIsEmpty;
 
-    public LoadAcquisitionsFromStorage(Storage storage, Zone zone, Context context) {
+    public LoadAcquisitionsFromStorage(Storage storage, Zone zone) {
 
         mZone = zone;
         mStorage = storage;
-        mContext = context;
+
     }
 
     public void run() {

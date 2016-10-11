@@ -37,7 +37,6 @@ import map.net.apscanner.classes.zone.Zone;
 import map.net.apscanner.fragments.CurrentAcquisitionSetFragment;
 import map.net.apscanner.fragments.NewAcquisitionSetFragment;
 import map.net.apscanner.utils.GsonUtil;
-import map.net.apscanner.utils.LoadAcquisitionsFromStorage;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
@@ -139,7 +138,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
         }
 
         fragmentTransaction.commit();
-        new LoadAcquisitionsFromStorage(storage, zone, this).start();
 
     }
 
@@ -202,9 +200,9 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
             for (File file : mStorage.getFiles(zone.getName(), OrderType.NAME)) {
                 if (!Objects.equals(file.getName(), "settings")) {
-                    acquisitionsJSONArray.put(GsonUtil.getGson().toJson(new String(
+                    acquisitionsJSONArray.put(new String(
                             storage.readFile(zone.getName(), file.getName()),
-                            Charset.forName("UTF-8")))
+                            Charset.forName("UTF-8"))
                     );
                 }
             }

@@ -110,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            assert response != null;
+
             return response;
         }
 

@@ -24,6 +24,9 @@ public class StartActivity extends AppCompatActivity {
         SharedPreferences prefs = this.getSharedPreferences("userInfo", Context.MODE_PRIVATE);
         Intent nextActivity;
 
+        /* New instance of Gson Utility */
+        new GsonUtil();
+
         if (prefs.getBoolean("logged_in?", false)) {
             nextActivity = new Intent(StartActivity.this, FacilitiesActivity.class);
 
@@ -31,8 +34,6 @@ public class StartActivity extends AppCompatActivity {
             UserInfo.setUserEmail(prefs.getString("X-User-Email", null));
             UserInfo.setUserToken(prefs.getString("X-User-Token", null));
 
-            /* New instance of Gson Utility */
-            new GsonUtil();
         } else {
             nextActivity = new Intent(StartActivity.this, LoginActivity.class);
         }

@@ -155,7 +155,6 @@ public class FacilitiesActivity extends AppCompatActivity {
 
                 List<Facility> facilitiesList = new ArrayList<>();
 
-                assert facilitiesJSON != null;
                 for (int i = 0; i < facilitiesJSON.length(); i++) {
                     try {
 

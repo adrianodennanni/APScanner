@@ -194,6 +194,8 @@ public class ZonesActivity extends AppCompatActivity {
                         String daysOnlyDate = daysOnlyDataFormat.format(completeDate);
                         zone.setDate(daysOnlyDate);
 
+                        zone.setId((String) ((JSONObject) zoneJSON.get("_id")).get("$oid"));
+
                         zonesList.add(zone);
                     } catch (JSONException | ParseException e) {
                         e.printStackTrace();

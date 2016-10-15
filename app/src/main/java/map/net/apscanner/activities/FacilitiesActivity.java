@@ -272,7 +272,6 @@ public class FacilitiesActivity extends AppCompatActivity {
                 toast.show();
             }
 
-            assert response != null;
             response.close();
         }
 

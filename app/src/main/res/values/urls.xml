@@ -7,4 +7,6 @@
 
     <string name="get_zones_url">http://52.67.171.39:3000/zones</string>
     <string name="new_zone_url">http://52.67.171.39:3000/create_zone</string>
+
+    <string name="post_acquisition_set_url">http://52.67.171.39:3000/create_acquisition_set</string>
 </resources>

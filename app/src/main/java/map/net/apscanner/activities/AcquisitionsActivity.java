@@ -3,6 +3,7 @@ package map.net.apscanner.activities;
 import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -25,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
@@ -37,6 +40,12 @@ import map.net.apscanner.classes.zone.Zone;
 import map.net.apscanner.fragments.CurrentAcquisitionSetFragment;
 import map.net.apscanner.fragments.NewAcquisitionSetFragment;
 import map.net.apscanner.utils.GsonUtil;
+import map.net.apscanner.utils.UserInfo;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
@@ -70,7 +79,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
         extras = getIntent().getExtras();
         if (extras != null) {
             zone = (Zone) extras.get("ZONE");
-            assert zone != null;
             subtitleAcquisitionTextView.setText(zone.getName());
         }
 
@@ -180,17 +188,26 @@ public class AcquisitionsActivity extends AppCompatActivity {
         }
     }
 
-    public class sendAcquisitionSet extends AsyncTask<Void, Void, Void> {
+    public class sendAcquisitionSet extends AsyncTask<Object, Object, Response> {
 
         private Storage mStorage;
+        private ProgressDialog loadingDialog;
 
         public sendAcquisitionSet(Storage storage) {
             mStorage = storage;
         }
 
+
+        @Override
+        protected void onPreExecute() {
+            loadingDialog = ProgressDialog.show(AcquisitionsActivity.this,
+                    "Please wait...", "Getting data from server");
+            loadingDialog.setCancelable(false);
+        }
+
         @SuppressLint("NewApi")
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Response doInBackground(Object... params) {
             JSONArray acquisitionsJSONArray = new JSONArray();
 
             final AcquisitionSet currentAcquisitionSet = GsonUtil.getGson().fromJson(
@@ -200,14 +217,21 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
             for (File file : mStorage.getFiles(zone.getName(), OrderType.NAME)) {
                 if (!Objects.equals(file.getName(), "settings")) {
-                    acquisitionsJSONArray.put(new String(
-                            storage.readFile(zone.getName(), file.getName()),
-                            Charset.forName("UTF-8"))
-                    );
+                    JSONObject accessPointJSON = null;
+                    try {
+                        accessPointJSON = new JSONObject(new String(
+                                storage.readFile(zone.getName(), file.getName()),
+                                Charset.forName("UTF-8")
+                        ));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    acquisitionsJSONArray.put(accessPointJSON);
                 }
             }
             JSONObject acquisitionJSONObject = new JSONObject();
-            JSONObject postBody = new JSONObject();
+            JSONObject JSONPostBody = new JSONObject();
+            String postBody = null;
             try {
                 acquisitionJSONObject.put("zone_id", zone.getId());
                 acquisitionJSONObject.put("normalization_algorithm",
@@ -218,13 +242,74 @@ public class AcquisitionsActivity extends AppCompatActivity {
                         currentAcquisitionSet.getMeasures_per_point());
                 acquisitionJSONObject.put("acquisitions", acquisitionsJSONArray);
 
-                postBody.put("acquisition_set", acquisitionJSONObject);
+                JSONPostBody.put("acquisition_set", acquisitionJSONObject);
+                postBody = JSONPostBody.toString();
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            return null;
+            OkHttpClient client = new OkHttpClient();
+
+            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+            RequestBody requestBody = RequestBody.create(JSON, postBody);
+
+            Request request = new Request.Builder()
+                    .url(getResources().getString(R.string.post_acquisition_set_url))
+                    .header("Content-Type", "application/json")
+                    .header("X-User-Email", UserInfo.getUserEmail())
+                    .header("X-User-Token", UserInfo.getUserToken())
+                    .post(requestBody)
+                    .build();
+            Response response = null;
+
+            try {
+                response = client.newCall(request).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return response;
+        }
+
+        protected void onPostExecute(Response response) {
+
+            /* Default error message to be shown */
+            String defaultErrorMessage = "Something went wrong, try refreshing";
+
+            /* Dismiss dialog*/
+            loadingDialog.dismiss();
+
+            /* If, for some reason, the response is null (should not be) */
+            if (response == null) {
+                Toast toast = Toast.makeText(AcquisitionsActivity.this,
+                        defaultErrorMessage, Toast.LENGTH_LONG);
+                toast.show();
+            }
+
+            /* In this case, server created the acquisition set */
+            else if (response.isSuccessful()) {
+                Toast toast = Toast.makeText(AcquisitionsActivity.this,
+                        "Success!", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+
+            /* Response not null, but server rejected */
+            else {
+
+                /* Show in toast the error from server */
+                try {
+                    defaultErrorMessage = response.body().string();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Toast toast = Toast.makeText(AcquisitionsActivity.this,
+                        defaultErrorMessage, Toast.LENGTH_LONG);
+                toast.show();
+            }
+
+            response.close();
         }
     }
 

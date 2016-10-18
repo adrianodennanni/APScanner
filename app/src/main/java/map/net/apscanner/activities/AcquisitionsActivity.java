@@ -289,9 +289,16 @@ public class AcquisitionsActivity extends AppCompatActivity {
 
             /* In this case, server created the acquisition set */
             else if (response.isSuccessful()) {
+
+                storage.deleteDirectory(zone.getName());
                 Toast toast = Toast.makeText(AcquisitionsActivity.this,
                         "Success!", Toast.LENGTH_SHORT);
                 toast.show();
+                Intent intent = new Intent(AcquisitionsActivity.this, AcquisitionsActivity.class);
+                intent.putExtra("ZONE", zone);
+                startActivity(intent);
+                finish();
+                overridePendingTransition(0, 0);
             }
 
             /* Response not null, but server rejected */

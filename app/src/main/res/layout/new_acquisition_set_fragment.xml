@@ -21,6 +21,8 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/textView"
+            android:layout_marginLeft="3dp"
+            android:layout_marginStart="3dp"
             android:entries="@array/normalization_methods"
             android:gravity="center_vertical|end"
             android:spinnerMode="dropdown" />

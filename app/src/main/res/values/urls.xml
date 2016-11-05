@@ -9,4 +9,11 @@
     <string name="new_zone_url">http://52.67.171.39:3000/create_zone</string>
 
     <string name="post_acquisition_set_url">http://52.67.171.39:3000/create_acquisition_set</string>
+
+
+    <string name="train_ml_url">http://52.67.171.39:2000/train</string>
+    <string name="prepare_data_for_ml_url">http://52.67.171.39:2000/prepare</string>
+    <string name="predict_zone_url">http://52.67.171.39:2000/singleTest</string>
+
+
 </resources>

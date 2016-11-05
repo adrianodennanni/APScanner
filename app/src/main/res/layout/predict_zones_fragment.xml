@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/titleUpdateInterval"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/editTextUpdateInterval"
+        android:layout_centerHorizontal="true"
+        android:text="@string/update_interval_seconds" />
+
+    <EditText
+        android:id="@+id/editTextUpdateInterval"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/titleUpdateInterval"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/titleUpdateInterval"
+        android:layout_marginBottom="63dp"
+        android:ems="10"
+        android:hint="@string/_2_0"
+        android:inputType="numberDecimal" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/editTextUpdateInterval"
+        android:layout_alignEnd="@+id/titleUpdateInterval"
+        android:layout_alignRight="@+id/titleUpdateInterval"
+        android:layout_below="@+id/titleUpdateInterval"
+        android:layout_toEndOf="@+id/editTextUpdateInterval"
+        android:layout_toRightOf="@+id/editTextUpdateInterval"
+        android:text="@string/ok" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/titleUpdateInterval"
+        android:layout_alignEnd="@+id/titleUpdateInterval"
+        android:layout_alignLeft="@+id/titleUpdateInterval"
+        android:layout_alignRight="@+id/titleUpdateInterval"
+        android:layout_alignStart="@+id/titleUpdateInterval"
+        android:layout_marginBottom="20dp" />
+
+    <TextView
+        android:id="@+id/zoneName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="131dp"
+        android:text="@string/Placeholder"
+        android:textSize="30sp" />
+</RelativeLayout>

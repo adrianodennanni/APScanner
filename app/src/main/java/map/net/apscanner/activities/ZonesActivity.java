@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +54,9 @@ public class ZonesActivity extends AppCompatActivity {
     Bundle extras;
     Facility facility;
 
+    ImageButton trainML;
+    ImageButton testML;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +71,16 @@ public class ZonesActivity extends AppCompatActivity {
         zonesListView = (ListView) findViewById(R.id.zonesListView);
         subtitleTextView = (TextView) findViewById(R.id.subtitleZone);
         newZoneFAB = (FloatingActionButton) findViewById(R.id.fabNewZone);
+
+        trainML = (ImageButton) findViewById(R.id.imageButtonTrain);
+        testML = (ImageButton) findViewById(R.id.imageButtonTest);
+
+        trainML.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                new trainMachineLearningOnServer().execute();
+            }
+        });
 
         subtitleTextView.setText(facility.getName());
 
@@ -303,6 +317,108 @@ public class ZonesActivity extends AppCompatActivity {
 
             response.close();
         }
+
+    }
+
+    private class trainMachineLearningOnServer extends AsyncTask<Void, Void, Response> {
+
+        @Override
+        protected void onPreExecute() {
+            loadingDialog = ProgressDialog.show(ZonesActivity.this,
+                    "Please wait...", "Training machine learning data sets");
+            loadingDialog.setCancelable(false);
+        }
+
+        @Override
+        protected Response doInBackground(Void... params) {
+
+            HttpUrl prepareML_URL = new HttpUrl.Builder()
+                    .scheme("http")
+                    .host("52.67.171.39")
+                    .port(2000)
+                    .addPathSegment("prepare")
+                    .addQueryParameter("facilityID", facility.getId())
+                    .build();
+
+            HttpUrl trainML_URL = new HttpUrl.Builder()
+                    .scheme("http")
+                    .host("52.67.171.39")
+                    .port(2000)
+                    .addPathSegment("train")
+                    .addQueryParameter("facilityID", facility.getId())
+                    .build();
+
+            OkHttpClient client = new OkHttpClient();
+
+            Request prepareRequest = new Request.Builder()
+                    .url(prepareML_URL)
+                    .header("Content-Type", "application/json")
+                    .build();
+
+            Request trainRequest = new Request.Builder()
+                    .url(trainML_URL)
+                    .header("Content-Type", "application/json")
+                    .build();
+
+            Response prepareResponse = null;
+            Response trainResponse = null;
+
+            try {
+                prepareResponse = client.newCall(prepareRequest).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (prepareResponse != null && prepareResponse.isSuccessful()) {
+                try {
+                    prepareResponse.close();
+                    trainResponse = client.newCall(trainRequest).execute();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            if (trainResponse != null) {
+                trainResponse.close();
+            }
+
+            return trainResponse;
+
+
+        }
+
+        protected void onPostExecute(Response response) {
+
+            /* Default error message to be shown */
+            String defaultErrorMessage = "Something went wrong, try refreshing";
+
+            /* Dismiss dialog*/
+            loadingDialog.dismiss();
+
+            /* If, for some reason, the response is null (should not be) */
+            if (response == null) {
+                Toast toast = Toast.makeText(ZonesActivity.this,
+                        defaultErrorMessage, Toast.LENGTH_LONG);
+                toast.show();
+            } else if (response.isSuccessful()) {
+                Toast toast = Toast.makeText(ZonesActivity.this,
+                        "Data set was trained", Toast.LENGTH_LONG);
+                toast.show();
+            }
+
+            /* Response not null, but server rejected */
+            else {
+                Toast toast = Toast.makeText(ZonesActivity.this,
+                        defaultErrorMessage, Toast.LENGTH_LONG);
+                toast.show();
+            }
+
+            if (response != null) {
+                response.close();
+            }
+        }
+
 
     }
 

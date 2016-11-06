@@ -12,6 +12,24 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary">
 
+        <ImageButton
+            android:id="@+id/imageButtonTest"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end"
+            android:background="@null"
+            android:contentDescription="@string/acquire_current_zone"
+            app:srcCompat="@drawable/ic_network_check_white_24dp" />
+
+        <ImageButton
+            android:id="@+id/imageButtonTrain"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end"
+            android:background="@null"
+            android:contentDescription="@string/acquire_current_zone"
+            app:srcCompat="@drawable/ic_fitness_center_white_24dp" />
+
     </android.support.v7.widget.Toolbar>
 
     <TextView

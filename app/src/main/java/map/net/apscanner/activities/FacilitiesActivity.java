@@ -272,7 +272,9 @@ public class FacilitiesActivity extends AppCompatActivity {
                 toast.show();
             }
 
-            response.close();
+            if (response != null) {
+                response.close();
+            }
         }
 
     }

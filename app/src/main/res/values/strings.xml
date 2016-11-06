@@ -34,4 +34,6 @@
     <string name="current_acquisition_set_settings">Current acquisition set settings:</string>
     <string name="update_interval_seconds">Update interval (seconds):</string>
     <string name="_2_0">2.0</string>
+    <string name="acquire_current_zone">Acquire current zone</string>
+    <string name="upload_current_acquisition_set">Upload current acquisition set</string>
 </resources>

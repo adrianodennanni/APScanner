@@ -17,7 +17,7 @@
             android:layout_height="48dp"
             android:layout_gravity="end"
             android:background="@null"
-            android:contentDescription="@string/erase_current_acquisition_set"
+            android:contentDescription="@string/upload_current_acquisition_set"
             android:src="@drawable/ic_send_white_24dp" />
 
         <ImageButton

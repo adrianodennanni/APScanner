@@ -82,6 +82,15 @@ public class ZonesActivity extends AppCompatActivity {
             }
         });
 
+        testML.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                Intent testIntent = new Intent(ZonesActivity.this, PredictZoneActivity.class);
+                testIntent.putExtra("FACILITY", facility);
+                startActivity(testIntent);
+            }
+        });
+
         subtitleTextView.setText(facility.getName());
 
         /* On button's click, calls AsyncTask to send new Facility to server */
@@ -401,7 +410,10 @@ public class ZonesActivity extends AppCompatActivity {
                 Toast toast = Toast.makeText(ZonesActivity.this,
                         defaultErrorMessage, Toast.LENGTH_LONG);
                 toast.show();
-            } else if (response.isSuccessful()) {
+            }
+
+            /* Response OK */
+            else if (response.isSuccessful()) {
                 Toast toast = Toast.makeText(ZonesActivity.this,
                         "Data set was trained", Toast.LENGTH_LONG);
                 toast.show();

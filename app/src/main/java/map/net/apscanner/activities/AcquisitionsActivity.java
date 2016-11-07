@@ -175,7 +175,6 @@ public class AcquisitionsActivity extends AppCompatActivity {
      * This function is called by the System after the user has chosen to permit or not
      * Coarse Location to be accessed by the app.
      */
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -193,7 +192,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
         private Storage mStorage;
         private ProgressDialog loadingDialog;
 
-        public sendAcquisitionSet(Storage storage) {
+        private sendAcquisitionSet(Storage storage) {
             mStorage = storage;
         }
 
@@ -316,7 +315,9 @@ public class AcquisitionsActivity extends AppCompatActivity {
                 toast.show();
             }
 
-            response.close();
+            if (response != null) {
+                response.close();
+            }
         }
     }
 

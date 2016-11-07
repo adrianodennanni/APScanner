@@ -25,6 +25,7 @@
         </activity>
         <activity android:name=".activities.ZonesActivity" />
         <activity android:name=".activities.AcquisitionsActivity" />
+        <activity android:name=".activities.PredictZoneActivity"></activity>
     </application>
 
 </manifest>

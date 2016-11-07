@@ -3,6 +3,39 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+
+    </android.support.v7.widget.Toolbar>
+
+    <TextView
+        android:id="@+id/subtitleFacilityName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/toolbar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:text="@string/facility_name"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#ffffff" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/subtitleFacilityName"
+        android:layout_alignLeft="@+id/subtitleFacilityName"
+        android:layout_alignStart="@+id/subtitleFacilityName"
+        android:text="@string/predict_zone"
+        android:textColor="@android:color/primary_text_dark"
+        android:textSize="24sp" />
+
     <TextView
         android:id="@+id/titleUpdateInterval"
         android:layout_width="wrap_content"
@@ -20,8 +53,8 @@
         android:layout_alignStart="@+id/titleUpdateInterval"
         android:layout_marginBottom="63dp"
         android:ems="10"
-        android:hint="@string/_2_0"
-        android:inputType="numberDecimal" />
+        android:inputType="numberDecimal"
+        android:text="@string/_2_0" />
 
     <Button
         android:id="@+id/button2"
@@ -54,6 +87,5 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="131dp"
-        android:text="@string/Placeholder"
         android:textSize="30sp" />
 </RelativeLayout>

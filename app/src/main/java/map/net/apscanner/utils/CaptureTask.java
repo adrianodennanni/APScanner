@@ -73,8 +73,7 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
 
         long intervalMiliSeconds = (long) (mCurrentAcquisitionSet.getTime_interval() * 1000);
         mCache = new ArrayList<>();
-
-            /*
+/*
             * This part of the code schedules the scan and calls it after the interval suggested
             * by the user. It is called n times, with n being the value suggested by the user too.
             */

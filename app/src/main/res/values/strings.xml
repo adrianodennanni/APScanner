@@ -36,4 +36,5 @@
     <string name="_2_0">2.0</string>
     <string name="acquire_current_zone">Acquire current zone</string>
     <string name="upload_current_acquisition_set">Upload current acquisition set</string>
+    <string name="predict_zone">Predict Zone</string>
 </resources>

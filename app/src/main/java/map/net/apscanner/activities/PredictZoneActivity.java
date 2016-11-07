@@ -133,6 +133,15 @@ public class PredictZoneActivity extends AppCompatActivity {
     }
 
     /**
+     * This function finishes the activity after back button is pressed.
+     */
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finish();
+    }
+
+    /**
      * This function asks for permission to access Coarse Location, necessary to read access points
      * data.
      *

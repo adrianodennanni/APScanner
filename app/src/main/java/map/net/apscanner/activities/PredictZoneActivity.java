@@ -7,6 +7,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -20,8 +21,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -56,6 +55,7 @@ public class PredictZoneActivity extends AppCompatActivity {
     Float updateInterval = 2.0f;
     AcquireCurrentZoneFromServer acquireCurrentZoneFromServer;
     String currentZone = "";
+    CountDownTimer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +83,13 @@ public class PredictZoneActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     updateInterval = Float.parseFloat(editTextUpdateInterval.getText().toString());
+                    if (updateInterval < 0.5f) {
+                        updateInterval = 2.0f;
+                        editTextUpdateInterval.setText("2.0");
+                        Toast toast = Toast.makeText(PredictZoneActivity.this,
+                                "Must be greater than 0.5", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
                 } catch (NumberFormatException e) {
                     updateInterval = 2.0f;
                     editTextUpdateInterval.setText("2.0");
@@ -90,6 +97,8 @@ public class PredictZoneActivity extends AppCompatActivity {
                             "Invalid format", Toast.LENGTH_SHORT);
                     toast.show();
                 }
+
+
             }
         });
 
@@ -98,12 +107,15 @@ public class PredictZoneActivity extends AppCompatActivity {
         * This part of the code schedules the scan and calls it after the interval suggested
         * by the user. It is called endlessly.
         */
-        final Timer timer = new Timer();
-
-        timer.schedule(new TimerTask() {
+        timer = new CountDownTimer((long) (updateInterval * 1000), (long) (updateInterval * 5)) {
             @Override
-            public void run() {
+            public void onTick(long millisUntilFinished) {
+                progressBar.setMax((int) (updateInterval * 1000));
+                progressBar.setProgress((int) (updateInterval * 1000 - millisUntilFinished));
+            }
 
+            @Override
+            public void onFinish() {
                 if (!wManager.isWifiEnabled()) {
                     wManager.setWifiEnabled(true);
                 }
@@ -115,10 +127,8 @@ public class PredictZoneActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-
             }
-        }, 0, (long) (updateInterval * 1000));
-
+        }.start();
 
     }
 
@@ -163,7 +173,7 @@ public class PredictZoneActivity extends AppCompatActivity {
 
     private class AcquireCurrentZoneFromServer {
 
-        public void run(OkHttpClient client, List<ScanResult> scanResults) throws Exception {
+        void run(OkHttpClient client, List<ScanResult> scanResults) throws Exception {
 
             JSONObject requestBodyJSON = new JSONObject();
             JSONObject apJSON;
@@ -192,22 +202,39 @@ public class PredictZoneActivity extends AppCompatActivity {
                 public void onFailure(Call call, IOException e) {
                     e.printStackTrace();
 
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "Something went wrong, try again later", Toast.LENGTH_LONG);
-                    toast.show();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast toast = Toast.makeText(PredictZoneActivity.this,
+                                    "Something went wrong, try again later", Toast.LENGTH_LONG);
+                            toast.show();
+                        }
+                    });
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    if (!response.isSuccessful())
+                    if (!response.isSuccessful()) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast toast = Toast.makeText(PredictZoneActivity.this,
+                                        "Something went wrong, try again later", Toast.LENGTH_LONG);
+                                toast.show();
+                            }
+                        });
                         throw new IOException("Unexpected code " + response);
+                    }
+
 
                     currentZone = response.body().string();
+                    currentZone = currentZone.substring(2, currentZone.length() - 2);
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             zoneName.setText(currentZone);
+                            timer.start();
                         }
                     });
 

@@ -104,7 +104,7 @@ public class FacilitiesActivity extends AppCompatActivity {
      * This async task gets a list of User's facilities data from server and put them into a
      * ListView. The user can touch on the facility to access its zones.
      */
-    private class getFacilitiesFromServer extends AsyncTask<Void, Void, Response> {
+    private class getFacilitiesFromServer extends AsyncTask<Object, Object, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -114,7 +114,7 @@ public class FacilitiesActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Response doInBackground(Void... params) {
+        protected Void doInBackground(Object... params) {
 
             OkHttpClient client = new OkHttpClient();
 
@@ -132,18 +132,16 @@ public class FacilitiesActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            return response;
-        }
-
-
-        protected void onPostExecute(Response response) {
-
-            loadingDialog.dismiss();
 
             if (response == null) {
-                Toast toast = Toast.makeText(FacilitiesActivity.this,
-                        "Something went wrong, try refreshing", Toast.LENGTH_LONG);
-                toast.show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast toast = Toast.makeText(FacilitiesActivity.this,
+                                "Something went wrong, try refreshing", Toast.LENGTH_LONG);
+                        toast.show();
+                    }
+                });
             } else if (response.isSuccessful()) {
 
                 JSONArray facilitiesJSON = null;
@@ -179,24 +177,47 @@ public class FacilitiesActivity extends AppCompatActivity {
                     }
                 }
 
-                FacilityAdapter adapter = new FacilityAdapter(FacilitiesActivity.this, facilitiesList);
-                facilitiesListView.setAdapter(adapter);
-                facilitiesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                final FacilityAdapter adapter = new FacilityAdapter(FacilitiesActivity.this, facilitiesList);
+
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Facility facilityAtPosition = (Facility) facilitiesListView.getItemAtPosition(position);
-                        Intent zonesIntent = new Intent(FacilitiesActivity.this, ZonesActivity.class);
-                        zonesIntent.putExtra("FACILITY", facilityAtPosition);
-                        startActivity(zonesIntent);
+                    public void run() {
+                        facilitiesListView.setAdapter(adapter);
+                        facilitiesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Facility facilityAtPosition = (Facility) facilitiesListView.getItemAtPosition(position);
+                                Intent zonesIntent = new Intent(FacilitiesActivity.this, ZonesActivity.class);
+                                zonesIntent.putExtra("FACILITY", facilityAtPosition);
+                                startActivity(zonesIntent);
+                            }
+                        });
                     }
                 });
 
             } else {
 
-                Toast toast = Toast.makeText(FacilitiesActivity.this,
-                        "Something went wrong, try refreshing", Toast.LENGTH_LONG);
-                toast.show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Toast toast = Toast.makeText(FacilitiesActivity.this,
+                                "Something went wrong, try refreshing", Toast.LENGTH_LONG);
+                        toast.show();
+                    }
+                });
             }
+
+
+            return null;
+        }
+
+
+        protected void onPostExecute(Void response) {
+
+            loadingDialog.dismiss();
+
+
         }
     }
 

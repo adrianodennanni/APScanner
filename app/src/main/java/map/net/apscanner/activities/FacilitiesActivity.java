@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -44,6 +45,7 @@ public class FacilitiesActivity extends AppCompatActivity {
     ListView facilitiesListView;
     FloatingActionButton newFacilityFAB;
     ProgressDialog loadingDialog;
+    ImageButton reloadFacilitiesButton;
 
 
     @Override
@@ -51,8 +53,15 @@ public class FacilitiesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_facilities);
 
+        reloadFacilitiesButton = (ImageButton) findViewById(R.id.imageButtonReloadFacilities);
         newFacilityFAB = (FloatingActionButton) findViewById(R.id.fabNewFacility);
         facilitiesListView = (ListView) findViewById(R.id.facilitiesListView);
+
+        reloadFacilitiesButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new getFacilitiesFromServer().execute();
+            }
+        });
 
         /* On button's click, calls AsyncTask to send new Facility to server */
         newFacilityFAB.setOnClickListener(new View.OnClickListener() {
@@ -138,7 +147,7 @@ public class FacilitiesActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast toast = Toast.makeText(FacilitiesActivity.this,
-                                "Something went wrong, try refreshing", Toast.LENGTH_LONG);
+                                "Something went wrong, try refreshing", Toast.LENGTH_SHORT);
                         toast.show();
                     }
                 });
@@ -202,7 +211,7 @@ public class FacilitiesActivity extends AppCompatActivity {
                     public void run() {
 
                         Toast toast = Toast.makeText(FacilitiesActivity.this,
-                                "Something went wrong, try refreshing", Toast.LENGTH_LONG);
+                                "Something went wrong, try refreshing", Toast.LENGTH_SHORT);
                         toast.show();
                     }
                 });
@@ -269,7 +278,7 @@ public class FacilitiesActivity extends AppCompatActivity {
             /* If, for some reason, the response is null (should not be) */
             if (response == null) {
                 Toast toast = Toast.makeText(FacilitiesActivity.this,
-                        defaultErrorMessage, Toast.LENGTH_LONG);
+                        defaultErrorMessage, Toast.LENGTH_SHORT);
                 toast.show();
             }
 
@@ -289,7 +298,7 @@ public class FacilitiesActivity extends AppCompatActivity {
                 }
 
                 Toast toast = Toast.makeText(FacilitiesActivity.this,
-                        defaultErrorMessage, Toast.LENGTH_LONG);
+                        defaultErrorMessage, Toast.LENGTH_SHORT);
                 toast.show();
             }
 

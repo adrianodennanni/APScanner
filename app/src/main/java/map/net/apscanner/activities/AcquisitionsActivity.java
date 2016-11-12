@@ -79,7 +79,9 @@ public class AcquisitionsActivity extends AppCompatActivity {
         extras = getIntent().getExtras();
         if (extras != null) {
             zone = (Zone) extras.get("ZONE");
-            subtitleAcquisitionTextView.setText(zone.getName());
+            if (zone != null) {
+                subtitleAcquisitionTextView.setText(zone.getName());
+            }
         }
 
 
@@ -251,7 +253,11 @@ public class AcquisitionsActivity extends AppCompatActivity {
             OkHttpClient client = new OkHttpClient();
 
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-            RequestBody requestBody = RequestBody.create(JSON, postBody);
+            RequestBody requestBody = null;
+
+            if (postBody != null) {
+                requestBody = RequestBody.create(JSON, postBody);
+            }
 
             Request request = new Request.Builder()
                     .url(getResources().getString(R.string.post_acquisition_set_url))
@@ -282,7 +288,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
             /* If, for some reason, the response is null (should not be) */
             if (response == null) {
                 Toast toast = Toast.makeText(AcquisitionsActivity.this,
-                        defaultErrorMessage, Toast.LENGTH_LONG);
+                        defaultErrorMessage, Toast.LENGTH_SHORT);
                 toast.show();
             }
 
@@ -311,7 +317,7 @@ public class AcquisitionsActivity extends AppCompatActivity {
                 }
 
                 Toast toast = Toast.makeText(AcquisitionsActivity.this,
-                        defaultErrorMessage, Toast.LENGTH_LONG);
+                        defaultErrorMessage, Toast.LENGTH_SHORT);
                 toast.show();
             }
 

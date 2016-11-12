@@ -153,7 +153,7 @@ public class LoginActivity extends AppCompatActivity {
             } else {
 
                 Toast toast = Toast.makeText(LoginActivity.this,
-                        "Something went wrong, try again later", Toast.LENGTH_LONG);
+                        "Something went wrong, try again later", Toast.LENGTH_SHORT);
                 toast.show();
             }
         }

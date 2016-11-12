@@ -9,6 +9,7 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,7 +30,7 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
     private Normalization mNormalization;
     private int mCurrentCompleteScanNumber = 0;
     private int mCurrentStartedScanNumber = 0;
-    private ArrayList<List<ScanResult>> mCache;
+    private LinkedList<List<ScanResult>> mCache;
     private Context mContext;
     private Zone mZone;
 
@@ -41,7 +42,7 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
         mZone = zone;
     }
 
-    private void addToNormalizationQueue(ArrayList<List<ScanResult>> onePointScan) {
+    private void addToNormalizationQueue(LinkedList<List<ScanResult>> onePointScan) {
         mNormalization.setOnePointScan(onePointScan);
     }
 
@@ -72,7 +73,7 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... params) {
 
         long intervalMiliSeconds = (long) (mCurrentAcquisitionSet.getTime_interval() * 1000);
-        mCache = new ArrayList<>();
+        mCache = new LinkedList<>();
 /*
             * This part of the code schedules the scan and calls it after the interval suggested
             * by the user. It is called n times, with n being the value suggested by the user too.

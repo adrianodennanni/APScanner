@@ -20,12 +20,16 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import map.net.apscanner.R;
+import map.net.apscanner.classes.access_point.AccessPoint;
 import map.net.apscanner.classes.facility.Facility;
+import map.net.apscanner.utils.Normalization;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -39,6 +43,7 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 public class PredictZoneActivity extends AppCompatActivity {
 
     private static final int REQUEST_ACCESS_LOCATION = 0;
+    final int sampleSize = 3;
     @BindView(R.id.subtitleFacilityName)
     TextView subtitleFacilityName;
     @BindView(R.id.zoneName)
@@ -56,6 +61,8 @@ public class PredictZoneActivity extends AppCompatActivity {
     AcquireCurrentZoneFromServer acquireCurrentZoneFromServer;
     String currentZone = "";
     CountDownTimer timer;
+    //This is a "cache" for the scans, so it is possible to be normalized
+    LinkedList<List<ScanResult>> scanResultsCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +85,9 @@ public class PredictZoneActivity extends AppCompatActivity {
             }
         }
 
+        // Set progress bar default size
+        progressBar.setMax((int) (updateInterval * 1000));
+
         // Set update time
         buttonOK.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -97,40 +107,24 @@ public class PredictZoneActivity extends AppCompatActivity {
                             "Invalid format", Toast.LENGTH_SHORT);
                     toast.show();
                 }
-
-
+                progressBar.setMax((int) (updateInterval * 1000));
+                timer.cancel();
+                timer = setTimer(updateInterval, sampleSize, client).start();
             }
         });
 
 
+
         /*
         * This part of the code schedules the scan and calls it after the interval suggested
-        * by the user. It is called endlessly.
+        * by the user. It is called endlessly. It normalizes the input by scanning 3 times.
         */
-        timer = new CountDownTimer((long) (updateInterval * 1000), (long) (updateInterval * 5)) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                progressBar.setMax((int) (updateInterval * 1000));
-                progressBar.setProgress((int) (updateInterval * 1000 - millisUntilFinished));
-            }
+        scanResultsCache = new LinkedList<>();
 
-            @Override
-            public void onFinish() {
-                if (!wManager.isWifiEnabled()) {
-                    wManager.setWifiEnabled(true);
-                }
-
-                if (wManager.startScan()) {
-                    try {
-                        acquireCurrentZoneFromServer.run(client, wManager.getScanResults());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }.start();
-
+        timer = setTimer(updateInterval, sampleSize, client);
+        timer.start();
     }
+
 
     /**
      * This function finishes the activity after back button is pressed.
@@ -138,7 +132,55 @@ public class PredictZoneActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        this.finish();
+        timer.cancel();
+        finish();
+    }
+
+    /**
+     * This method creates a new CountDownTimer able to schedule scans and send normalized data
+     * to the server
+     *
+     * @param totalTime  Time defined between HTTP calls and results
+     * @param sampleSize Number of samples for arithmetic mean
+     * @param client     OkHTTP client
+     * @return CountDownTimer ready to send requests at any rate
+     **/
+
+    public CountDownTimer setTimer(final float totalTime, final int sampleSize, final OkHttpClient client) {
+
+        return new CountDownTimer((long) (totalTime * 1000 / (sampleSize - 1)), (long) totalTime) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+                progressBar.setProgress((int) (totalTime * 1000 - millisUntilFinished -
+                        (sampleSize - scanResultsCache.size() - 1) *
+                                (totalTime * 1000 / (sampleSize - 1)))
+                );
+            }
+
+            @Override
+            public void onFinish() {
+                if (wManager.startScan()) {
+                    scanResultsCache.add(wManager.getScanResults());
+
+                    if (scanResultsCache.size() == sampleSize) {
+                        Normalization normalization = new Normalization("Mean", sampleSize);
+                        normalization.setOnePointScan(scanResultsCache);
+
+                        try {
+                            acquireCurrentZoneFromServer.run(client, normalization.normalize());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        for (int i = 1; i < sampleSize; i++) {
+                            scanResultsCache.removeFirst();
+                        }
+                    }
+                    this.start();
+                }
+
+            }
+        };
     }
 
     /**
@@ -182,24 +224,25 @@ public class PredictZoneActivity extends AppCompatActivity {
 
     private class AcquireCurrentZoneFromServer {
 
-        void run(OkHttpClient client, List<ScanResult> scanResults) throws Exception {
+        void run(OkHttpClient client, ArrayList<AccessPoint> accessPoints) throws Exception {
 
             JSONObject requestBodyJSON = new JSONObject();
             JSONObject apJSON;
             JSONArray acquisitionsJSONArray = new JSONArray();
 
             requestBodyJSON.put("facility_id", facility.getId());
-            for (ScanResult sr : scanResults) {
+            for (AccessPoint ap : accessPoints) {
                 apJSON = new JSONObject();
-                apJSON.put("BSSID", sr.BSSID);
-                apJSON.put("RSSI", sr.level);
+                apJSON.put("BSSID", ap.getBSSID());
+                apJSON.put("RSSI", ap.getRSSI());
                 acquisitionsJSONArray.put(apJSON);
+                System.out.println("BSSID: " + ap.getBSSID() + " | RSSI: " + Double.toString(ap.getRSSI()));
             }
+            System.out.println("---------------------------");
 
             requestBodyJSON.put("access_points", acquisitionsJSONArray);
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             RequestBody requestBody = RequestBody.create(JSON, String.valueOf(requestBodyJSON));
-
 
             Request request = new Request.Builder()
                     .url(getResources().getString(R.string.predict_zone_url))
@@ -215,7 +258,7 @@ public class PredictZoneActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             Toast toast = Toast.makeText(PredictZoneActivity.this,
-                                    "Something went wrong, try again later", Toast.LENGTH_LONG);
+                                    "Something went wrong, try again later", Toast.LENGTH_SHORT);
                             toast.show();
                         }
                     });
@@ -228,7 +271,7 @@ public class PredictZoneActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 Toast toast = Toast.makeText(PredictZoneActivity.this,
-                                        "Something went wrong, try again later", Toast.LENGTH_LONG);
+                                        "Something went wrong, try again later", Toast.LENGTH_SHORT);
                                 toast.show();
                             }
                         });
@@ -243,7 +286,6 @@ public class PredictZoneActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             zoneName.setText(currentZone);
-                            timer.start();
                         }
                     });
 
@@ -252,3 +294,6 @@ public class PredictZoneActivity extends AppCompatActivity {
         }
     }
 }
+
+
+

@@ -63,7 +63,7 @@ public class SaveAcquisitionSetToFile extends Thread {
                 Long.toString(System.currentTimeMillis()), acquisitionJSON.toString())) {
             Toast.makeText(mContext,
                     "Acquisition could not be saved. Check your storage.",
-                    Toast.LENGTH_LONG).show();
+                    Toast.LENGTH_SHORT).show();
         }
 
 

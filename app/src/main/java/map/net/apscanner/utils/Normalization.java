@@ -4,6 +4,7 @@ import android.net.wifi.ScanResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import map.net.KalmanFilter;
@@ -34,7 +35,7 @@ public class Normalization {
      * @param onePointScans Vector of vectors containing ScanResults
      *
      */
-    public void setOnePointScan(ArrayList<List<ScanResult>> onePointScans) {
+    public void setOnePointScan(LinkedList<List<ScanResult>> onePointScans) {
 
         ArrayList<Double> rssiList;
 

@@ -56,6 +56,7 @@ public class ZonesActivity extends AppCompatActivity {
 
     ImageButton trainML;
     ImageButton testML;
+    ImageButton reloadZonesImageButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class ZonesActivity extends AppCompatActivity {
 
         trainML = (ImageButton) findViewById(R.id.imageButtonTrain);
         testML = (ImageButton) findViewById(R.id.imageButtonTest);
+        reloadZonesImageButton = (ImageButton) findViewById(R.id.imageButtonReloadZones);
 
         trainML.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -88,6 +90,12 @@ public class ZonesActivity extends AppCompatActivity {
                 Intent testIntent = new Intent(ZonesActivity.this, PredictZoneActivity.class);
                 testIntent.putExtra("FACILITY", facility);
                 startActivity(testIntent);
+            }
+        });
+
+        reloadZonesImageButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new getZonesFromServer().execute();
             }
         });
 
@@ -177,19 +185,15 @@ public class ZonesActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            return response;
-        }
-
-
-        protected void onPostExecute(Response response) {
-
-            loadingDialog.dismiss();
-
             if (response == null) {
-                Toast toast = Toast.makeText(ZonesActivity.this,
-                        "Something went wrong, try refreshing", Toast.LENGTH_LONG);
-                toast.show();
-                return;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast toast = Toast.makeText(ZonesActivity.this,
+                                "Something went wrong, try refreshing", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                });
             } else if (response.code() >= 200 && response.code() < 300) {
 
                 JSONArray zonesJSON = null;
@@ -225,26 +229,48 @@ public class ZonesActivity extends AppCompatActivity {
                     }
                 }
 
-                ZoneAdapter adapter = new ZoneAdapter(ZonesActivity.this, zonesList);
-                zonesListView.setAdapter(adapter);
-                zonesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                final ZoneAdapter adapter = new ZoneAdapter(ZonesActivity.this, zonesList);
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Zone zoneAtPosition = (Zone) zonesListView.getItemAtPosition(position);
-                        Intent measuresIntent = new Intent(ZonesActivity.this, AcquisitionsActivity.class);
-                        measuresIntent.putExtra("ZONE", zoneAtPosition);
-                        startActivity(measuresIntent);
+                    public void run() {
+                        zonesListView.setAdapter(adapter);
+                        zonesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Zone zoneAtPosition = (Zone) zonesListView.getItemAtPosition(position);
+                                Intent measuresIntent = new Intent(ZonesActivity.this, AcquisitionsActivity.class);
+                                measuresIntent.putExtra("ZONE", zoneAtPosition);
+                                startActivity(measuresIntent);
+                            }
+                        });
                     }
                 });
 
             } else {
-
-                Toast toast = Toast.makeText(ZonesActivity.this,
-                        "Something went wrong, try refreshing", Toast.LENGTH_LONG);
-                toast.show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast toast = Toast.makeText(ZonesActivity.this,
+                                "Something went wrong, try refreshing", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                });
             }
 
-            response.close();
+            if (response != null) {
+                response.close();
+            }
+            return null;
+        }
+
+
+        protected void onPostExecute(Response response) {
+
+            loadingDialog.dismiss();
+
+
+
+
         }
 
     }
@@ -299,7 +325,7 @@ public class ZonesActivity extends AppCompatActivity {
             /* If, for some reason, the response is null (should not be) */
             if (response == null) {
                 Toast toast = Toast.makeText(ZonesActivity.this,
-                        defaultErrorMessage, Toast.LENGTH_LONG);
+                        defaultErrorMessage, Toast.LENGTH_SHORT);
                 toast.show();
                 return;
             }
@@ -320,7 +346,7 @@ public class ZonesActivity extends AppCompatActivity {
                 }
 
                 Toast toast = Toast.makeText(ZonesActivity.this,
-                        defaultErrorMessage, Toast.LENGTH_LONG);
+                        defaultErrorMessage, Toast.LENGTH_SHORT);
                 toast.show();
             }
 
@@ -408,21 +434,21 @@ public class ZonesActivity extends AppCompatActivity {
             /* If, for some reason, the response is null (should not be) */
             if (response == null) {
                 Toast toast = Toast.makeText(ZonesActivity.this,
-                        defaultErrorMessage, Toast.LENGTH_LONG);
+                        defaultErrorMessage, Toast.LENGTH_SHORT);
                 toast.show();
             }
 
             /* Response OK */
             else if (response.isSuccessful()) {
                 Toast toast = Toast.makeText(ZonesActivity.this,
-                        "Data set was trained", Toast.LENGTH_LONG);
+                        "Data set was trained", Toast.LENGTH_SHORT);
                 toast.show();
             }
 
             /* Response not null, but server rejected */
             else {
                 Toast toast = Toast.makeText(ZonesActivity.this,
-                        defaultErrorMessage, Toast.LENGTH_LONG);
+                        defaultErrorMessage, Toast.LENGTH_SHORT);
                 toast.show();
             }
 

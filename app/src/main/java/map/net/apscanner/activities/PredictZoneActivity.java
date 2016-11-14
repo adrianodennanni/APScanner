@@ -136,6 +136,17 @@ public class PredictZoneActivity extends AppCompatActivity {
         finish();
     }
 
+
+    /**
+     * This function finishes the activity after the app is sent to background.
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        timer.cancel();
+        finish();
+    }
+
     /**
      * This method creates a new CountDownTimer able to schedule scans and send normalized data
      * to the server
@@ -182,6 +193,7 @@ public class PredictZoneActivity extends AppCompatActivity {
             }
         };
     }
+
 
     /**
      * This function asks for permission to access Coarse Location, necessary to read access points

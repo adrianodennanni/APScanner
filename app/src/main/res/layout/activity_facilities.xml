@@ -20,7 +20,8 @@
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true" />
+            android:layout_alignParentTop="true"
+            android:longClickable="true" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fabNewFacility"

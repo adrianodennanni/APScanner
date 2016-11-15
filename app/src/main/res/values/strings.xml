@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">APScanner</string>
+    <string name="app_name">net.map</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
     <string name="john_doe_email">john@net.map</string>
@@ -37,4 +37,8 @@
     <string name="acquire_current_zone">Acquire current zone</string>
     <string name="upload_current_acquisition_set">Upload current acquisition set</string>
     <string name="predict_zone">Predict Zone</string>
+    <string name="delete_facility">Delete facility</string>
+    <string name="delete_zone">Delete zone</string>
+    <string name="clear_zone">Clear zone</string>
+    <color name="white">#FFFFFF</color>
 </resources>

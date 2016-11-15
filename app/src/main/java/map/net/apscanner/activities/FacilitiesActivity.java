@@ -8,6 +8,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
@@ -28,12 +31,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import map.net.apscanner.R;
 import map.net.apscanner.classes.facility.Facility;
 import map.net.apscanner.classes.facility.FacilityAdapter;
 import map.net.apscanner.utils.GsonUtil;
 import map.net.apscanner.utils.UserInfo;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -66,7 +73,6 @@ public class FacilitiesActivity extends AppCompatActivity {
         /* On button's click, calls AsyncTask to send new Facility to server */
         newFacilityFAB.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
                 MaterialDialog.Builder newFacilityDialog =
                         new MaterialDialog.Builder(FacilitiesActivity.this)
                                 .title("Create a new facility")
@@ -92,7 +98,6 @@ public class FacilitiesActivity extends AppCompatActivity {
                                     }
                                 });
 
-
                 newFacilityDialog.input("Enter your facility name", null,
                         new MaterialDialog.InputCallback() {
                             @Override
@@ -100,13 +105,34 @@ public class FacilitiesActivity extends AppCompatActivity {
 
                             }
                         });
-
                 newFacilityDialog.show();
             }
         });
 
+        registerForContextMenu(facilitiesListView);
 
         new getFacilitiesFromServer().execute();
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId() == R.id.facilitiesListView) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.facility_menu_list, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.deleteFacility:
+                new DeleteFacilityFromServer().run((Facility) facilitiesListView.getItemAtPosition(info.position));
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     /**
@@ -117,9 +143,15 @@ public class FacilitiesActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            loadingDialog = ProgressDialog.show(FacilitiesActivity.this,
-                    "Please wait...", "Getting data from server");
-            loadingDialog.setCancelable(false);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    loadingDialog = ProgressDialog.show(FacilitiesActivity.this,
+                            "Please wait...", "Getting data from server");
+                    loadingDialog.setCancelable(false);
+                }
+            });
         }
 
         @Override
@@ -162,27 +194,29 @@ public class FacilitiesActivity extends AppCompatActivity {
 
                 List<Facility> facilitiesList = new ArrayList<>();
 
-                for (int i = 0; i < facilitiesJSON.length(); i++) {
-                    try {
+                if (facilitiesJSON != null) {
+                    for (int i = 0; i < facilitiesJSON.length(); i++) {
+                        try {
 
-                        /* Creates a new Facility object from JSON */
-                        JSONObject facilityJSON = facilitiesJSON.getJSONObject(i);
-                        Facility facility = new Facility(facilityJSON.get("name").toString());
-                        facility.setId(facilityJSON.getJSONObject("_id").get("$oid").toString());
+                            /* Creates a new Facility object from JSON */
+                            JSONObject facilityJSON = facilitiesJSON.getJSONObject(i);
+                            Facility facility = new Facility(facilityJSON.get("name").toString());
+                            facility.setId(facilityJSON.getJSONObject("_id").get("$oid").toString());
 
-                        /* Sets up a ISO format and convert servers format to it */
-                        DateFormat dateFormatISO = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                        String facilityCreatedAtDate = facilityJSON.get("created_at").toString();
-                        Date completeDate = dateFormatISO.parse(facilityCreatedAtDate);
+                            /* Sets up a ISO format and convert servers format to it */
+                            DateFormat dateFormatISO = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                            String facilityCreatedAtDate = facilityJSON.get("created_at").toString();
+                            Date completeDate = dateFormatISO.parse(facilityCreatedAtDate);
 
-                        /* Setting up days only date*/
-                        DateFormat daysOnlyDataFormat = new SimpleDateFormat("dd/MMM/yy");
-                        String daysOnlyDate = daysOnlyDataFormat.format(completeDate);
-                        facility.setDate(daysOnlyDate);
+                            /* Setting up days only date*/
+                            DateFormat daysOnlyDataFormat = new SimpleDateFormat("dd/MMM/yy", Locale.US);
+                            String daysOnlyDate = daysOnlyDataFormat.format(completeDate);
+                            facility.setDate(daysOnlyDate);
 
-                        facilitiesList.add(facility);
-                    } catch (JSONException | ParseException e) {
-                        e.printStackTrace();
+                            facilitiesList.add(facility);
+                        } catch (JSONException | ParseException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
@@ -307,6 +341,57 @@ public class FacilitiesActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    private class DeleteFacilityFromServer {
+
+        void run(Facility facility) {
+
+            OkHttpClient client = new OkHttpClient();
+
+            HttpUrl deleteFacility_URL = new HttpUrl.Builder()
+                    .scheme("http")
+                    .host("52.67.171.39")
+                    .port(3000)
+                    .addPathSegment("delete_facility")
+                    .addQueryParameter("id", facility.getId())
+                    .build();
+
+            Request request = new Request.Builder()
+                    .url(deleteFacility_URL)
+                    .delete()
+                    .header("X-User-Email", UserInfo.getUserEmail())
+                    .header("X-User-Token", UserInfo.getUserToken())
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+                    final String body = response.body().string();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast toast = null;
+                            toast = Toast.makeText(FacilitiesActivity.this,
+                                    body, Toast.LENGTH_SHORT);
+                            if (toast != null) {
+                                toast.show();
+                            }
+                        }
+                    });
+
+                    new getFacilitiesFromServer().execute();
+                    response.close();
+                }
+            });
+        }
     }
 }
 

@@ -8,6 +8,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
@@ -37,6 +40,8 @@ import map.net.apscanner.classes.zone.Zone;
 import map.net.apscanner.classes.zone.ZoneAdapter;
 import map.net.apscanner.utils.GsonUtil;
 import map.net.apscanner.utils.UserInfo;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -143,7 +148,33 @@ public class ZonesActivity extends AppCompatActivity {
             }
         });
 
+        registerForContextMenu(zonesListView);
+
         new getZonesFromServer().execute();
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId() == R.id.zonesListView) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.zone_menu_list, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.deleteZone:
+                new ZonesActivity.DeleteZoneFromServer().run((Zone) zonesListView.getItemAtPosition(info.position));
+                return true;
+            case R.id.clearZone:
+                new ZonesActivity.ClearZoneOnServer().run((Zone) zonesListView.getItemAtPosition(info.position));
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
 
@@ -155,9 +186,14 @@ public class ZonesActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            loadingDialog = ProgressDialog.show(ZonesActivity.this,
-                    "Please wait...", "Getting data from server");
-            loadingDialog.setCancelable(false);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    loadingDialog = ProgressDialog.show(ZonesActivity.this,
+                            "Please wait...", "Getting data from server");
+                    loadingDialog.setCancelable(false);
+                }
+            });
         }
 
         @Override
@@ -267,8 +303,6 @@ public class ZonesActivity extends AppCompatActivity {
         protected void onPostExecute(Response response) {
 
             loadingDialog.dismiss();
-
-
 
 
         }
@@ -458,6 +492,113 @@ public class ZonesActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private class DeleteZoneFromServer {
+
+        void run(Zone zone) {
+
+            OkHttpClient client = new OkHttpClient();
+
+            HttpUrl deleteFacility_URL = new HttpUrl.Builder()
+                    .scheme("http")
+                    .host("52.67.171.39")
+                    .port(3000)
+                    .addPathSegment("delete_zone")
+                    .addQueryParameter("id", zone.getId())
+                    .build();
+
+            Request request = new Request.Builder()
+                    .url(deleteFacility_URL)
+                    .delete()
+                    .header("X-User-Email", UserInfo.getUserEmail())
+                    .header("X-User-Token", UserInfo.getUserToken())
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+
+                    final String body = response.body().string();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast toast = null;
+                            toast = Toast.makeText(ZonesActivity.this,
+                                    body, Toast.LENGTH_SHORT);
+                            if (toast != null) {
+                                toast.show();
+                            }
+                        }
+                    });
+
+                    new ZonesActivity.getZonesFromServer().execute();
+                    response.close();
+                }
+            });
+        }
+    }
+
+    private class ClearZoneOnServer {
+
+        void run(Zone zone) {
+
+            OkHttpClient client = new OkHttpClient();
+
+            HttpUrl deleteFacility_URL = new HttpUrl.Builder()
+                    .scheme("http")
+                    .host("52.67.171.39")
+                    .port(3000)
+                    .addPathSegment("clear_zone")
+                    .addQueryParameter("id", zone.getId())
+                    .build();
+
+            Request request = new Request.Builder()
+                    .url(deleteFacility_URL)
+                    .get()
+                    .header("X-User-Email", UserInfo.getUserEmail())
+                    .header("X-User-Token", UserInfo.getUserToken())
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+
+                    final String body = response.body().string();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast toast = null;
+                            toast = Toast.makeText(ZonesActivity.this,
+                                    body, Toast.LENGTH_SHORT);
+                            if (toast != null) {
+                                toast.show();
+                            }
+                        }
+                    });
+
+                    response.close();
+                    new ZonesActivity.getZonesFromServer().execute();
+
+                }
+            });
+        }
     }
 
 }

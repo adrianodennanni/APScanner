@@ -290,7 +290,6 @@ public class PredictZoneActivity extends AppCompatActivity {
                         throw new IOException("Unexpected code " + response);
                     }
 
-
                     currentZone = response.body().string();
                     currentZone = currentZone.substring(2, currentZone.length() - 2);
 
@@ -300,7 +299,7 @@ public class PredictZoneActivity extends AppCompatActivity {
                             zoneName.setText(currentZone);
                         }
                     });
-
+                    response.close();
                 }
             });
         }

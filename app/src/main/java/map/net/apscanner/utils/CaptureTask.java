@@ -84,10 +84,6 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
             @Override
             public void run() {
 
-                if (!wManager.isWifiEnabled()) {
-                    wManager.setWifiEnabled(true);
-                }
-
                 if (wManager.startScan()) {
                     mCache.add(wManager.getScanResults());
 

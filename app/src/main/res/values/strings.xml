@@ -40,5 +40,7 @@
     <string name="delete_facility">Delete facility</string>
     <string name="delete_zone">Delete zone</string>
     <string name="clear_zone">Clear zone</string>
+    <string name="use_continuous_scan_mode">Use continuous scan mode</string>
+    <string name="continuous_scan">Continuous scan</string>
     <color name="white">#FFFFFF</color>
 </resources>

@@ -20,6 +20,7 @@ import butterknife.ButterKnife;
 import map.net.apscanner.R;
 import map.net.apscanner.classes.acquisition_set.AcquisitionSet;
 import map.net.apscanner.classes.zone.Zone;
+import map.net.apscanner.utils.BroadcastReceiverTask;
 import map.net.apscanner.utils.CaptureTask;
 import map.net.apscanner.utils.GsonUtil;
 
@@ -39,6 +40,12 @@ public class CurrentAcquisitionSetFragment extends Fragment {
 
     @BindView(R.id.fabAddMeasure)
     FloatingActionButton addNewMeasureFAB;
+
+    @BindView(R.id.titleScansPerAcquisition)
+    TextView titleScansPerAcquisition;
+
+    @BindView(R.id.titleTimeInterval)
+    TextView titleTimeInterval;
 
     Storage storage;
     Zone zone;
@@ -64,13 +71,21 @@ public class CurrentAcquisitionSetFragment extends Fragment {
                 currentAcquisitionSet.getNormalization_algorithm()
         );
 
-        currentScansPerAcquisitionTextView.setText(
-                Integer.toString(currentAcquisitionSet.getMeasures_per_point())
-        );
+        if(!currentAcquisitionSet.getNormalization_algorithm().equals("Continuous scan")){
+            currentScansPerAcquisitionTextView.setText(
+                    Integer.toString(currentAcquisitionSet.getMeasures_per_point())
+            );
 
-        currentTimeIntervalTextView.setText(
-                Float.toString(currentAcquisitionSet.getTime_interval())
-        );
+            currentTimeIntervalTextView.setText(
+                    Float.toString(currentAcquisitionSet.getTime_interval())
+            );
+        }
+        else{
+            currentScansPerAcquisitionTextView.setVisibility(View.GONE);
+            currentTimeIntervalTextView.setVisibility(View.GONE);
+            titleScansPerAcquisition.setVisibility(View.GONE);
+            titleTimeInterval.setVisibility(View.GONE);
+        }
 
         currentNumberOfAcquisitionsTextView.setText(
                 Integer.toString(storage.getFiles(zone.getName(), OrderType.NAME).size() - 1)
@@ -86,12 +101,24 @@ public class CurrentAcquisitionSetFragment extends Fragment {
                         );
 
 
-                CaptureTask captureAPs = new CaptureTask(
-                        newAcquisitionSet,
-                        getActivity(),
-                        zone);
+                if(currentAcquisitionSet.getNormalization_algorithm().equals("Continuous scan")){
+                    BroadcastReceiverTask continuousScan = new BroadcastReceiverTask(
+                            newAcquisitionSet,
+                            getActivity(),
+                            zone);
 
-                captureAPs.execute();
+                    continuousScan.execute();
+
+                }
+                else{
+                    CaptureTask captureAPs = new CaptureTask(
+                            newAcquisitionSet,
+                            getActivity(),
+                            zone);
+
+                    captureAPs.execute();
+                }
+
 
                 currentNumberOfAcquisitionsTextView.setText(
                         Integer.toString(storage.getFiles(zone.getName(), OrderType.NAME).size() - 1)

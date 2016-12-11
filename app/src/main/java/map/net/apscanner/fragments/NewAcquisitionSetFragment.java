@@ -7,6 +7,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -31,6 +33,8 @@ public class NewAcquisitionSetFragment extends Fragment {
     EditText numberOfScansEditText;
     @BindView(R.id.editTextTimeInterval)
     EditText timeIntervalEditText;
+    @BindView(R.id.checkBoxContinuous)
+    CheckBox checkBoxContinuousMode;
 
 
     Zone zone;
@@ -47,11 +51,20 @@ public class NewAcquisitionSetFragment extends Fragment {
 
         startAcquisitionsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+
+                String method = methodSpinner.getSelectedItem().toString();
+                float timeInterval = Float.parseFloat(timeIntervalEditText.getText().toString());
+                int numberOfScans = Integer.parseInt(numberOfScansEditText.getText().toString());
+
+                if(checkBoxContinuousMode.isChecked()){
+                    method = getString(R.string.continuous_scan);
+                }
+
                 AcquisitionSet currentAcquisitionSet =
                         new AcquisitionSet(
-                                methodSpinner.getSelectedItem().toString(),
-                                Float.parseFloat(timeIntervalEditText.getText().toString()),
-                                Integer.parseInt(numberOfScansEditText.getText().toString())
+                                method,
+                                timeInterval,
+                                numberOfScans
                         );
 
                 Storage storage = SimpleStorage.getInternalStorage(getActivity());
@@ -66,6 +79,26 @@ public class NewAcquisitionSetFragment extends Fragment {
 
                 captureAPs.execute();
 
+
+            }
+        });
+
+        checkBoxContinuousMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                if ( isChecked )
+                {
+                    methodSpinner.setEnabled(false);
+                    numberOfScansEditText.setEnabled(false);
+                    timeIntervalEditText.setEnabled(false);
+                }
+                else{
+                    methodSpinner.setEnabled(true);
+                    numberOfScansEditText.setEnabled(true);
+                    timeIntervalEditText.setEnabled(true);
+                }
 
             }
         });

@@ -20,6 +20,7 @@ import butterknife.ButterKnife;
 import map.net.apscanner.R;
 import map.net.apscanner.classes.acquisition_set.AcquisitionSet;
 import map.net.apscanner.classes.zone.Zone;
+import map.net.apscanner.utils.BroadcastReceiverTask;
 import map.net.apscanner.utils.CaptureTask;
 import map.net.apscanner.utils.GsonUtil;
 
@@ -56,7 +57,7 @@ public class NewAcquisitionSetFragment extends Fragment {
                 float timeInterval = Float.parseFloat(timeIntervalEditText.getText().toString());
                 int numberOfScans = Integer.parseInt(numberOfScansEditText.getText().toString());
 
-                if(checkBoxContinuousMode.isChecked()){
+                if (checkBoxContinuousMode.isChecked()) {
                     method = getString(R.string.continuous_scan);
                 }
 
@@ -72,29 +73,35 @@ public class NewAcquisitionSetFragment extends Fragment {
                 storage.createFile(zone.getName(), "settings", settings);
 
 
-                CaptureTask captureAPs = new CaptureTask(
-                        currentAcquisitionSet,
-                        getActivity(),
-                        zone);
+                if (currentAcquisitionSet.getNormalization_algorithm().equals("Continuous scan")) {
+                    BroadcastReceiverTask continuousScan = new BroadcastReceiverTask(
+                            currentAcquisitionSet,
+                            getActivity(),
+                            zone);
 
-                captureAPs.execute();
+                    continuousScan.execute();
+
+                } else {
+                    CaptureTask captureAPs = new CaptureTask(
+                            currentAcquisitionSet,
+                            getActivity(),
+                            zone);
+
+                    captureAPs.execute();
+                }
 
 
             }
         });
 
-        checkBoxContinuousMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
+        checkBoxContinuousMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-            {
-                if ( isChecked )
-                {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
                     methodSpinner.setEnabled(false);
                     numberOfScansEditText.setEnabled(false);
                     timeIntervalEditText.setEnabled(false);
-                }
-                else{
+                } else {
                     methodSpinner.setEnabled(true);
                     numberOfScansEditText.setEnabled(true);
                     timeIntervalEditText.setEnabled(true);

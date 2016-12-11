@@ -118,7 +118,6 @@ public class CaptureTask extends AsyncTask<Void, Void, Void> {
 
     }
 
-
     protected void onPostExecute(Void param) {
         addToNormalizationQueue(mCache);
         ArrayList<AccessPoint> mNormalizedAccessPointsList = mNormalization.normalize();

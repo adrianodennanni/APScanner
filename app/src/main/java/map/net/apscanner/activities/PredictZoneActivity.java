@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,8 +28,11 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import map.net.apscanner.R;
+import map.net.apscanner.classes.ResultResponse;
 import map.net.apscanner.classes.access_point.AccessPoint;
+import map.net.apscanner.classes.acquisition_set.AcquisitionSet;
 import map.net.apscanner.classes.facility.Facility;
+import map.net.apscanner.utils.GsonUtil;
 import map.net.apscanner.utils.Normalization;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -46,6 +50,8 @@ public class PredictZoneActivity extends AppCompatActivity {
     final int sampleSize = 3;
     @BindView(R.id.subtitleFacilityName)
     TextView subtitleFacilityName;
+    @BindView(R.id.probability)
+    TextView confidence;
     @BindView(R.id.zoneName)
     TextView zoneName;
     @BindView(R.id.progressBar)
@@ -248,9 +254,7 @@ public class PredictZoneActivity extends AppCompatActivity {
                 apJSON.put("BSSID", ap.getBSSID());
                 apJSON.put("RSSI", ap.getRSSI());
                 acquisitionsJSONArray.put(apJSON);
-                System.out.println("BSSID: " + ap.getBSSID() + " | RSSI: " + Double.toString(ap.getRSSI()));
             }
-            System.out.println("---------------------------");
 
             requestBodyJSON.put("access_points", acquisitionsJSONArray);
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -293,10 +297,16 @@ public class PredictZoneActivity extends AppCompatActivity {
                     currentZone = response.body().string();
                     currentZone = currentZone.substring(2, currentZone.length() - 2);
 
+                    final ResultResponse resultResponse = GsonUtil.getGson().fromJson(currentZone,
+                            ResultResponse.class
+                    );
+
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            zoneName.setText(currentZone);
+                            zoneName.setText(resultResponse.getZonaName());
+                            confidence.setText("Confidence: "+resultResponse.getConfidence());
                         }
                     });
                     response.close();

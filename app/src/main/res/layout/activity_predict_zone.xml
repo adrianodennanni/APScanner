@@ -88,4 +88,12 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="131dp"
         android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/probability"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:layout_below="@+id/zoneName"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

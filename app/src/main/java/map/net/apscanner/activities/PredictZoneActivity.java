@@ -70,6 +70,7 @@ public class PredictZoneActivity extends AppCompatActivity {
     CountDownTimer timer;
     //This is a "cache" for the scans, so it is possible to be normalized
     LinkedList<List<ScanResult>> scanResultsCache;
+    Boolean isRequestOver = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,8 +121,6 @@ public class PredictZoneActivity extends AppCompatActivity {
             }
         });
 
-
-
         /*
         * This part of the code schedules the scan and calls it after the interval suggested
         * by the user. It is called endlessly. It normalizes the input by scanning 3 times.
@@ -131,7 +130,6 @@ public class PredictZoneActivity extends AppCompatActivity {
         timer = setTimer(updateInterval, sampleSize, client);
         timer.start();
     }
-
 
     /**
      * This function finishes the activity after back button is pressed.
@@ -186,12 +184,20 @@ public class PredictZoneActivity extends AppCompatActivity {
                         normalization.setOnePointScan(scanResultsCache);
 
                         try {
+                            isRequestOver = false;
                             acquireCurrentZoneFromServer.run(client, normalization.normalize());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                         for (int i = 1; i < sampleSize; i++) {
                             scanResultsCache.removeFirst();
+                        }
+                    }
+                    while(!isRequestOver){
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
                     this.start();
@@ -318,6 +324,7 @@ public class PredictZoneActivity extends AppCompatActivity {
                         }
                     });
                     response.close();
+                    isRequestOver = true;
                 }
             });
         }

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -297,16 +298,23 @@ public class PredictZoneActivity extends AppCompatActivity {
                     currentZone = response.body().string();
                     currentZone = currentZone.substring(2, currentZone.length() - 2);
 
-                    final ResultResponse resultResponse = GsonUtil.getGson().fromJson(currentZone,
-                            ResultResponse.class
-                    );
-
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            ResultResponse resultResponse = new ResultResponse();
+                            JSONObject jsonObject;
+                            try {
+                                jsonObject = new JSONObject(currentZone.replace("\\", ""));
+                                resultResponse.setZonaName(jsonObject.getString("ZonaName"));
+                                resultResponse.setConfidence(String.valueOf(jsonObject.getDouble("Confidence")));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+
                             zoneName.setText(resultResponse.getZonaName());
-                            confidence.setText("Confidence: "+resultResponse.getConfidence());
+                            confidence.setText("Confidence: " + resultResponse.getConfidence());
                         }
                     });
                     response.close();

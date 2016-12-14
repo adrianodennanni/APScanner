@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="map.net.apscanner">
+    package="map.net.netmapscanner">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -15,10 +15,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.LoginActivity" />
-        <activity android:name=".activities.FacilitiesActivity" />
+        <activity android:name="map.net.netmapscanner.activities.LoginActivity" />
+        <activity android:name="map.net.netmapscanner.activities.FacilitiesActivity" />
         <activity
-            android:name=".activities.StartActivity"
+            android:name="map.net.netmapscanner.activities.StartActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,9 +26,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.ZonesActivity" />
-        <activity android:name=".activities.AcquisitionsActivity" />
-        <activity android:name=".activities.PredictZoneActivity" />
+        <activity android:name="map.net.netmapscanner.activities.ZonesActivity" />
+        <activity android:name="map.net.netmapscanner.activities.AcquisitionsActivity" />
+        <activity android:name="map.net.netmapscanner.activities.PredictZoneActivity" />
     </application>
 
 </manifest>

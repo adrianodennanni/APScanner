@@ -5,7 +5,7 @@ android {
     buildToolsVersion "24.0.3"
 
     defaultConfig {
-        applicationId "map.net.apscanner"
+        applicationId "map.net.netmapscanner"
         minSdkVersion 16
         targetSdkVersion 24
         versionCode 2

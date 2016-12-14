@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="map.net.apscanner.activities.ZonesActivity">
+    tools:context="map.net.netmapscanner.activities.ZonesActivity">
 
     <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/toolbar"
@@ -72,7 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
-        tools:context="map.net.apscanner.activities.FacilitiesActivity">
+        tools:context="map.net.netmapscanner.activities.FacilitiesActivity">
 
 
         <ListView
